@@ -128,6 +128,7 @@ let bossX, bossY, bossVX, bossColor, bossPattern;
 let invincible = 0, deathFlash = 0;
 let mouseX = W/2, mouseY = H - 80;
 let shift = false;
+const keys = {};
 let stars = [];
 
 for(let i = 0; i < 120; i++) {
@@ -285,14 +286,36 @@ function update() {
   bullets = bullets.filter(b => b.x > -20 && b.x < W+20 && b.y > -20 && b.y < H+20);
   for(let b of bullets) { b.x += b.vx; b.y += b.vy; }
 
-  let tx = mouseX, ty = mouseY;
-  let speed = shift ? 1.6 : 3.8;
-  let dx = tx - player.x, dy = ty - player.y;
+let speed = shift ? 1.6 : 3.8;
+
+// キーボード入力で移動
+const up    = keys['ArrowUp']    || keys['KeyW'];
+const down  = keys['ArrowDown']  || keys['KeyS'];
+const left  = keys['ArrowLeft']  || keys['KeyA'];
+const right = keys['ArrowRight'] || keys['KeyD'];
+
+const usingKeyboard = up || down || left || right;
+
+if(usingKeyboard) {
+  // 斜め移動時は速度を 1/√2 に補正
+  const diag = (up || down) && (left || right) ? speed / Math.SQRT2 : speed;
+  if(up)    player.y -= diag;
+  if(down)  player.y += diag;
+  if(left)  player.x -= diag;
+  if(right) player.x += diag;
+  // マウス座標をプレイヤーに追従させて干渉を防ぐ
+  mouseX = player.x;
+  mouseY = player.y;
+} else {
+  // マウス/タッチ操作
+  let dx = mouseX - player.x, dy = mouseY - player.y;
   let d = Math.sqrt(dx*dx+dy*dy);
   if(d > speed) { player.x += dx/d*speed; player.y += dy/d*speed; }
-  else { player.x = tx; player.y = ty; }
-  player.x = Math.max(12, Math.min(W-12, player.x));
-  player.y = Math.max(12, Math.min(H-12, player.y));
+  else { player.x = mouseX; player.y = mouseY; }
+}
+
+player.x = Math.max(12, Math.min(W-12, player.x));
+player.y = Math.max(12, Math.min(H-12, player.y));
 
   if(invincible > 0) { invincible--; } else {
     for(let b of bullets) {
@@ -331,9 +354,34 @@ function updateUI() {
 
 function showOverlay(title, msg, btn) {
   let ov = document.getElementById('overlay');
-  ov.innerHTML = `<h2>${title}</h2><p style="white-space:pre-line">${msg}</p><button id="start-btn">${btn}</button>`;
+  
+  const gameUrl   = "https://dayu-otya.github.io/poporindd/";
+  const shareText = `【ぽぽりんの弾幕避け】\nSCORE: ${score.toLocaleString()} \nかすり: ${graze}\n${gameUrl}\n#ポポと岐阜\n#ぽぽりん`;
+  const encoded   = encodeURIComponent(shareText);
+
+  // 各SNSのウェブインテントURL
+  const xUrl       = `https://twitter.com/intent/tweet?text=${encoded}`;
+  const bskyUrl    = `https://bsky.app/intent/compose?text=${encoded}`;
+  const Karotter   = `https://karotter.com/?compose=1=${encoded}`;
+
+  ov.innerHTML = `
+    <h2>${title}</h2>
+    <p style="white-space:pre-line">${msg}</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:8px">
+      <a href="${xUrl}"       target="_blank" rel="noopener" style="${btnStyle('#000')}">𝕏 でシェア</a>
+      <a href="${bskyUrl}"    target="_blank" rel="noopener" style="${btnStyle('#0085ff')}">🦋 Bluesky</a>
+      <a href="${Karotter}" target="_blank" rel="noopener" style="${btnStyle('#86b300')}">🌙 Karotter</a>
+    </div>
+    <button id="start-btn">${btn}</button>
+  `;
   ov.style.display = 'flex';
   document.getElementById('start-btn').onclick = initGame;
+}
+
+// ボタン共通スタイル（ヘルパー）
+function btnStyle(bg) {
+  return `display:inline-block;padding:7px 16px;background:${bg};color:#fff;`
+       + `border-radius:6px;font-size:13px;text-decoration:none;border:none;cursor:pointer;`;
 }
 
 function drawBoss() {
@@ -409,9 +457,21 @@ function drawPlayer() {
   }
   
   ctx.drawImage(playerImg, -32, -32, 64, 64);  
-
+{
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255, 60, 60, 0.9)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(0, 0, player.hitR, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255, 60, 60, 0.9)';
+  ctx.beginPath();
+  ctx.arc(0, 0, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
   if(invincible > 0 && Math.floor(invincible/4) % 2 === 0) {
-    ctx.restore(); return;
+    ctx.restore();
   }
 
   if(shift) {
@@ -500,8 +560,16 @@ canvas.addEventListener('touchmove', e => {
   mouseY = (t.clientY - r.top) * (H / r.height);
 }, { passive: false });
 
-document.addEventListener('keydown', e => { if(e.key === 'Shift') shift = true; });
-document.addEventListener('keyup', e => { if(e.key === 'Shift') shift = false; });
+document.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if(e.code === 'ShiftLeft' || e.code === 'ShiftRight') shift = true;
+  // 矢印キーのスクロール防止
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+});
+document.addEventListener('keyup', e => {
+  keys[e.code] = false;
+  if(e.code === 'ShiftLeft' || e.code === 'ShiftRight') shift = false;
+});
 
 document.getElementById('start-btn').onclick = initGame;
 

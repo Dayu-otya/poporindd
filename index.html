@@ -41,7 +41,7 @@ body {
 
 /* ===== デバイスモード分岐 ===== */
 :root {
-  --game-width: 480px;
+  --game-width: 1000px;
   --game-height: 560px;
 }
 
@@ -70,7 +70,7 @@ body.mobile-mode #item-stock-bar {
 
 /* PCモード（デフォルト） */
 body.pc-mode #canvas-container {
-  width: 480px;
+  width: 1000px;
   height: 560px;
   border-radius: 8px;
 }
@@ -86,7 +86,7 @@ canvas { display: block; }
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 480px;
+  max-width: 1000px;
   padding: 0.5rem 0;
   font-size: 13px;
   color: #888;
@@ -149,7 +149,7 @@ canvas { display: block; }
   justify-content: center;
   align-items: center;
   width: 100%;
-  max-width: 480px;
+  max-width: 1000px;
   padding: 6px 0 4px;
   min-height: 52px;
 }
@@ -239,7 +239,7 @@ canvas { display: block; }
   </div>
 
   <div id="canvas-container">
-    <canvas id="gc" width="480" height="560"></canvas>
+    <canvas id="gc" width="1000" height="560"></canvas>
     <div id="boss-bar-wrap"><div id="boss-bar" style="width:100%"></div></div>
     <div id="phase-label" style="display:none"></div>
     <div id="overlay" style="display:flex">
@@ -280,7 +280,7 @@ canvas { display: block; }
 <script>
   // ===== デバイスモード管理 =====
 let deviceMode = null;  // 'pc' または 'mobile'
-let CANVAS_WIDTH = 480;
+let CANVAS_WIDTH = 1000;
 let CANVAS_HEIGHT = 560;
 
 function setDeviceMode(mode) {
@@ -288,11 +288,11 @@ function setDeviceMode(mode) {
   
   if(mode === 'mobile') {
     CANVAS_WIDTH = window.innerWidth;
-    CANVAS_HEIGHT = window.innerWidth * (560 / 480);  // アスペクト比維持
+    CANVAS_HEIGHT = window.innerWidth * (560 / 1000);  // アスペクト比維持
     document.body.classList.add('mobile-mode');
     document.body.classList.remove('pc-mode');
   } else {
-    CANVAS_WIDTH = 480;
+    CANVAS_WIDTH = 1000;
     CANVAS_HEIGHT = 560;
     document.body.classList.add('pc-mode');
     document.body.classList.remove('mobile-mode');
@@ -309,7 +309,7 @@ function setDeviceMode(mode) {
 const canvas = document.getElementById('gc');
 const ctx = canvas.getContext('2d');
 const bgm = document.getElementById('bgm');
-let gameW = 480;  // ゲーム世界の幅（デバイス選択時に更新）
+let gameW = 1000;  // ゲーム世界の幅（デバイス選択時に更新）
 let gameH = 560;  // ゲーム世界の高さ（デバイス選択時に更新）
 
 let state = 'idle';
@@ -325,7 +325,7 @@ let stars = [];
 // ===== アイテム定義 =====
 const ITEM_DEFS = {
   invincible: { emoji: '💛', label: '無敵5秒',   color: '#f4c875', duration: 300 },
-  hitReduce:  { emoji: '💙', label: '判定縮小8秒', color: '#7ad4e8', duration: 480 },
+  hitReduce:  { emoji: '💙', label: '判定縮小8秒', color: '#7ad4e8', duration: 1000 },
   scoreDouble:{ emoji: '❤️', label: 'スコア2倍10秒', color: '#e87ad4', duration: 600 },
   clearBullet:{ emoji: '💜', label: '弾消去',     color: '#c87ae8', duration: 0   },
 };
@@ -1079,7 +1079,7 @@ window.addEventListener('resize', () => {
     
     // キャンバス更新
     gameW = newW;
-    gameH = newW * (560 / 480);
+    gameH = newW * (560 / 1000);
     canvas.width = gameW;
     canvas.height = gameH;
     

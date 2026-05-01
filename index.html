@@ -7,7 +7,7 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  background-image: url('背景画像.jpg');
+  background-image: url('背景画像.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -20,6 +20,7 @@ body {
   font-family: system-ui, sans-serif;
   color: #ccc;
 }
+
 #home-btn:hover {
   background: rgba(150,150,150,0.5);
   transform: scale(1.05);
@@ -45,7 +46,7 @@ body {
 
 /* ===== デバイスモード分岐 ===== */
 :root {
-  --game-width: 1000px;
+  --game-width: 600px;
   --game-height: 560px;
 }
 
@@ -74,7 +75,7 @@ body.mobile-mode #item-stock-bar {
 
 /* PCモード（デフォルト） */
 body.pc-mode #canvas-container {
-  width: 1000px;
+  width: 600px;
   height: 560px;
   border-radius: 8px;
 }
@@ -90,7 +91,7 @@ canvas { display: block; }
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 1000px;
+  max-width: 600px;
   padding: 0.5rem 0;
   font-size: 13px;
   color: #888;
@@ -102,7 +103,7 @@ canvas { display: block; }
   border-radius: 50%;
   display: inline-block;
 }
-#score-display { font-size: 14px; font-weight: 500; color: #eee; }
+#score-display { font-size: 14px; font-weight: 500; color: #000000; }
 #overlay {
   position: absolute; top: 0; left: 0; right: 0; bottom: 0;
   display: flex; flex-direction: column;
@@ -153,7 +154,7 @@ canvas { display: block; }
   justify-content: center;
   align-items: center;
   width: 100%;
-  max-width: 1000px;
+  max-width: 600px;
   padding: 6px 0 4px;
   min-height: 52px;
 }
@@ -223,8 +224,8 @@ canvas { display: block; }
   <span class="life-icon" id="l2"></span>
 </div>
   <div id="score-display">SCORE <span id="score-val">0</span></div>
-  <div style="font-size:12px;color:#ffffff">かすり <span id="graze-val" style="color:#f4c875">0</span></div>
-  <div style="font-size:12px;color:#ffffff">時間 <span id="time-val" style="color:#7ad4e8">00:00</span></div>
+  <div style="font-size:12px;color:#000000">かすり <span id="graze-val" style="color:#7e5200">0</span></div>
+  <div style="font-size:12px;color:#000000">時間 <span id="time-val" style="color:#00566e">00:00</span></div>
 </div>
   <!-- アイテムストックUI -->
   <div id="item-stock-bar">
@@ -243,7 +244,7 @@ canvas { display: block; }
   </div>
 
   <div id="canvas-container">
-    <canvas id="gc" width="1000" height="560"></canvas>
+    <canvas id="gc" width="600" height="560"></canvas>
     <div id="boss-bar-wrap"><div id="boss-bar" style="width:100%"></div></div>
     <div id="phase-label" style="display:none"></div>
     <div id="overlay" style="display:flex">
@@ -284,7 +285,7 @@ canvas { display: block; }
 <script>
   // ===== デバイスモード管理 =====
 let deviceMode = null;  // 'pc' または 'mobile'
-let CANVAS_WIDTH = 1000;
+let CANVAS_WIDTH = 600;
 let CANVAS_HEIGHT = 560;
 
 function setDeviceMode(mode) {
@@ -292,11 +293,11 @@ function setDeviceMode(mode) {
   
   if(mode === 'mobile') {
     CANVAS_WIDTH = window.innerWidth;
-    CANVAS_HEIGHT = window.innerWidth * (560 / 1000);  // アスペクト比維持
+    CANVAS_HEIGHT = window.innerWidth * (560 / 600);  // アスペクト比維持
     document.body.classList.add('mobile-mode');
     document.body.classList.remove('pc-mode');
   } else {
-    CANVAS_WIDTH = 1000;
+    CANVAS_WIDTH = 600;
     CANVAS_HEIGHT = 560;
     document.body.classList.add('pc-mode');
     document.body.classList.remove('mobile-mode');
@@ -313,7 +314,7 @@ function setDeviceMode(mode) {
 const canvas = document.getElementById('gc');
 const ctx = canvas.getContext('2d');
 const bgm = document.getElementById('bgm');
-let gameW = 1000;  // ゲーム世界の幅（デバイス選択時に更新）
+let gameW = 600;  // ゲーム世界の幅（デバイス選択時に更新）
 let gameH = 560;  // ゲーム世界の高さ（デバイス選択時に更新）
 
 let state = 'idle';
@@ -329,7 +330,7 @@ let stars = [];
 // ===== アイテム定義 =====
 const ITEM_DEFS = {
   invincible: { emoji: '💛', label: '無敵5秒',   color: '#f4c875', duration: 300 },
-  hitReduce:  { emoji: '💙', label: '判定縮小8秒', color: '#7ad4e8', duration: 1000 },
+  hitReduce:  { emoji: '💙', label: '判定縮小8秒', color: '#7ad4e8', duration: 600 },
   scoreDouble:{ emoji: '❤️', label: 'スコア2倍10秒', color: '#e87ad4', duration: 600 },
   clearBullet:{ emoji: '💜', label: '弾消去',     color: '#c87ae8', duration: 0   },
 };
@@ -1083,7 +1084,7 @@ window.addEventListener('resize', () => {
     
     // キャンバス更新
     gameW = newW;
-    gameH = newW * (560 / 1000);
+    gameH = newW * (560 / 600);
     canvas.width = gameW;
     canvas.height = gameH;
     

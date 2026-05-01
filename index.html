@@ -7,11 +7,12 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
+  background: #ffffff;/*公開時は「
   background-image: url('背景画像.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-attachment: fixed;」に変更*/
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -230,6 +231,65 @@ canvas { display: block; }
   border-radius:8px; transition:background 0.15s;
 }
 #stats-btn:hover { background:rgba(120,120,120,0.4); }
+#game-start-screen {
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  justify-content: center;
+  padding: 20px;
+}
+ 
+#game-start-screen h2 {
+  margin: 0;
+  font-size: 26px;   
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+ 
+#game-start-screen #game-start-text {
+  font-size: 14px;
+  color: #7ad4e8;
+  font-weight: 500;
+  margin: 0;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+ 
+/* キャラクター選択セクションをまとめる */
+.chara-select-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;               
+  width: 100%;
+}
+ 
+.chara-select-label {
+  font-size: 13px;
+  color: #aab;
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+ 
+/* キャラクターボタンのコンテナ */
+#chara-buttons-container {
+  display: flex;
+  gap: 16px; 
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 350px;
+  padding: 0 12px;
+}
+ 
+/* ゲーム開始ボタン */
+#game-start-screen #start-btn {
+  margin-top: 12px;
+  padding: 12px 48px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
 </style>
 </head>
 <body>
@@ -286,13 +346,32 @@ canvas { display: block; }
     <button id="stats-btn" style="margin-top:8px;padding:8px 20px;font-size:13px;cursor:pointer;border:0.5px solid rgba(150,150,150,0.5);background:rgba(80,80,80,0.3);color:#aaa;border-radius:8px;">統計を見る</button>
   </div>
 
-  <div id="game-start-screen" style="display:none">
-    <h2>ぽぽりんで弾幕避け！</h2>
-    <p id="game-start-text" style="font-size:13px;color:#aab;margin-bottom:16px"></p>
-<button id="start-btn" style="padding:10px 28px;font-size:14px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;letter-spacing:0.04em;transition:background 0.15s">
-      ゲーム開始
-    </button>
+<div id="game-start-screen" style="display:none">
+  <h2>ぽぽりんで弾幕避け！</h2>
+  <p id="game-start-text" style="font-size:14px;color:#7ad4e8;margin:0;font-weight:500"></p>
+ 
+  <!-- キャラクター選択セクション -->
+  <div class="chara-select-section">
+    <p class="chara-select-label">キャラクターを選んでね</p>
+    
+    <div id="chara-buttons-container">
+      <button id="chara-btn-0" onclick="selectChara(0)" 
+              style="padding:10px 24px;font-size:13px;cursor:pointer;border:1.5px solid #e87ad4;background:rgba(232,122,212,0.3);color:#fff;border-radius:8px;transition:all 0.2s;font-weight:500;letter-spacing:0.04em">
+        🌸 ぽぽりん
+      </button>
+      <button id="chara-btn-1" onclick="selectChara(1)" 
+              style="padding:10px 24px;font-size:13px;cursor:pointer;border:1.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#aab;border-radius:8px;transition:all 0.2s;font-weight:500;letter-spacing:0.04em">
+        ⭐ ぽぽりん（ドットの姿）
+      </button>
+    </div>
   </div>
+ 
+  <!-- ゲーム開始ボタン -->
+  <button id="start-btn" 
+          style="padding:12px 48px;font-size:15px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;letter-spacing:0.04em;transition:background 0.15s;font-weight:500">
+    ゲーム開始
+  </button>
+</div>
 
   <div id="stats-screen" style="display:none;flex-direction:column;align-items:center;gap:10px;">
     <h2 style="font-size:17px;margin-bottom:4px">統計</h2>
@@ -446,8 +525,29 @@ const patterns = [
 ];
 
 
-const playerImg = new Image();
-playerImg.src = 'ぽぽりん.png';
+const playerImgs = [new Image(), new Image()];
+playerImgs[0].src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';// 公開時は「playerImg.src = 'ぽぽりん.png';」に切り替え
+playerImgs[1].src = 'ぽぽりん2.png';
+let selectedChara = 0;
+let playerImg = playerImgs[0];
+
+function selectChara(index) {
+  selectedChara = index;
+  playerImg = playerImgs[index];
+
+  for(let i = 0; i < 2; i++) {
+    const btn = document.getElementById('chara-btn-' + i);
+    if(i === index) {
+      btn.style.border = '1.5px solid #e87ad4';
+      btn.style.background = 'rgba(232,122,212,0.3)';
+      btn.style.color = '#fff';
+    } else {
+      btn.style.border = '1.5px solid rgba(255,255,255,0.2)';
+      btn.style.background = 'rgba(255,255,255,0.05)';
+      btn.style.color = '#aab';
+    }
+  }
+}
 
 function initGame() {
   bgm.currentTime = 0;
@@ -864,9 +964,8 @@ function goHome() {
   document.getElementById('phase-label').style.display = 'none';
   document.getElementById('game-start-screen').style.display = 'none';
   document.getElementById('stats-screen').style.display = 'none';
-  document.getElementById('device-select-screen').style.display = 'block';
+  document.getElementById('device-select-screen').style.display = 'flex'; 
   document.getElementById('overlay').style.display = 'flex';
-
   updateItemStockUI();
   updateEffectDisplay();
 }
@@ -1083,6 +1182,7 @@ document.getElementById('select-mobile-btn').addEventListener('click', () => {
 
 function showGameStartScreen(modeLabel) {
   document.getElementById('device-select-screen').style.display = 'none';
+  document.getElementById('stats-screen').style.display = 'none';
   document.getElementById('game-start-screen').style.display = 'flex';
   document.getElementById('game-start-text').textContent = 
     `${modeLabel} で開始するよ！`;

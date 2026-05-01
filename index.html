@@ -213,6 +213,23 @@ canvas { display: block; }
   animation: badgePulse 1s infinite alternate;
 }
 @keyframes badgePulse { from { opacity: 0.8; } to { opacity: 1; } }
+
+/* ===== 統計画面 ===== */
+#stats-screen { display:none; flex-direction:column; align-items:center; gap:10px; }
+.stats-row {
+  display:flex; justify-content:space-between;
+  width:260px; font-size:13px;
+  border-bottom:0.5px solid rgba(255,255,255,0.1);
+  padding:4px 0; color:#ccc;
+}
+.stats-row span:last-child { color:#e8d4ff; font-weight:500; }
+#stats-btn {
+  padding:8px 20px; font-size:13px; cursor:pointer;
+  border:0.5px solid rgba(150,150,150,0.5);
+  background:rgba(80,80,80,0.3); color:#aaa;
+  border-radius:8px; transition:background 0.15s;
+}
+#stats-btn:hover { background:rgba(120,120,120,0.4); }
 </style>
 </head>
 <body>
@@ -263,26 +280,94 @@ canvas { display: block; }
 
     <p style="font-size:12px;color:#666;margin-bottom:12px">操作: マウス・キーボード・タッチ対応</p>
     
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:12px;color:#aab;justify-content:center">
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:12px;color:#aab;justify-content:center">
       🔊 <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.5" style="width:100px;cursor:pointer;">
     </div>
+    <button id="stats-btn" style="margin-top:8px;padding:8px 20px;font-size:13px;cursor:pointer;border:0.5px solid rgba(150,150,150,0.5);background:rgba(80,80,80,0.3);color:#aaa;border-radius:8px;">統計を見る</button>
   </div>
 
   <div id="game-start-screen" style="display:none">
     <h2>ぽぽりんで弾幕避け！</h2>
     <p id="game-start-text" style="font-size:13px;color:#aab;margin-bottom:16px"></p>
-    <button id="start-btn" style="padding:10px 28px;font-size:14px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;letter-spacing:0.04em;transition:background 0.15s">
+<button id="start-btn" style="padding:10px 28px;font-size:14px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;letter-spacing:0.04em;transition:background 0.15s">
       ゲーム開始
     </button>
   </div>
+
+  <div id="stats-screen" style="display:none;flex-direction:column;align-items:center;gap:10px;">
+    <h2 style="font-size:17px;margin-bottom:4px">統計</h2>
+    <div style="display:flex;justify-content:space-between;width:260px;font-size:13px;border-bottom:0.5px solid rgba(255,255,255,0.1);padding:4px 0;color:#ccc"><span>合計スコア</span><span id="st-total-score" style="color:#e8d4ff">0</span></div>
+    <div style="display:flex;justify-content:space-between;width:260px;font-size:13px;border-bottom:0.5px solid rgba(255,255,255,0.1);padding:4px 0;color:#ccc"><span>ハイスコア</span><span id="st-hi-score" style="color:#e8d4ff">0</span></div>
+    <div style="display:flex;justify-content:space-between;width:260px;font-size:13px;border-bottom:0.5px solid rgba(255,255,255,0.1);padding:4px 0;color:#ccc"><span>合計かすり</span><span id="st-total-graze" style="color:#e8d4ff">0</span></div>
+    <div style="display:flex;justify-content:space-between;width:260px;font-size:13px;border-bottom:0.5px solid rgba(255,255,255,0.1);padding:4px 0;color:#ccc"><span>最高かすり</span><span id="st-hi-graze" style="color:#e8d4ff">0</span></div>
+    <div style="display:flex;justify-content:space-between;width:260px;font-size:13px;border-bottom:0.5px solid rgba(255,255,255,0.1);padding:4px 0;color:#ccc"><span>合計プレイ時間</span><span id="st-total-time" style="color:#e8d4ff">00:00:00</span></div>
+    <div style="display:flex;justify-content:space-between;width:260px;font-size:13px;padding:4px 0;color:#ccc"><span>最高プレイ時間</span><span id="st-hi-time" style="color:#e8d4ff">00:00</span></div>
+    <button id="back-from-stats-btn" style="margin-top:12px;padding:8px 24px;font-size:13px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.5);background:rgba(100,70,180,0.3);color:#dcd;border-radius:8px;">← 戻る</button>
+  </div>
+
 </div>
     <div id="effect-display"></div>
+    <div id="gameover-overlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;flex-direction:column;align-items:center;justify-content:center;color:white;gap:12px;text-align:center;z-index:30;background:rgba(0,0,0,0.6);">
+    </div>
   </div>
 </div>
 
 <audio id="bgm" src= "data:audio/mpeg;base64,as==" loop></audio>
 
 <script>
+
+  // ===== ローカルストレージ 統計 =====
+const STATS_KEY = 'poporin_stats';
+
+function loadStats() {
+  try {
+    return JSON.parse(localStorage.getItem(STATS_KEY)) || {};
+  } catch { return {}; }
+}
+
+function saveStats(s) {
+  localStorage.setItem(STATS_KEY, JSON.stringify(s));
+}
+
+function recordGameResult(finalScore, finalGraze, finalFrames) {
+  const s = loadStats();
+  const playedSec = Math.floor(finalFrames / 60);
+  s.totalScore  = (s.totalScore  || 0) + finalScore;
+  s.totalGraze  = (s.totalGraze  || 0) + finalGraze;
+  s.totalFrames = (s.totalFrames || 0) + finalFrames;
+  s.hiScore     = Math.max(s.hiScore  || 0, finalScore);
+  s.hiGraze     = Math.max(s.hiGraze  || 0, finalGraze);
+  s.hiFrames    = Math.max(s.hiFrames || 0, finalFrames);
+  saveStats(s);
+}
+
+function framesToHMS(frames) {
+  const total = Math.floor(frames / 60);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const sec = total % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+function framesToMS(frames) {
+  const total = Math.floor(frames / 60);
+  const m = Math.floor(total / 60);
+  const sec = total % 60;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+function showStatsScreen() {
+  const s = loadStats();
+  document.getElementById('st-total-score').textContent = (s.totalScore || 0).toLocaleString();
+  document.getElementById('st-hi-score').textContent    = (s.hiScore    || 0).toLocaleString();
+  document.getElementById('st-total-graze').textContent = (s.totalGraze || 0).toLocaleString();
+  document.getElementById('st-hi-graze').textContent    = (s.hiGraze    || 0).toLocaleString();
+  document.getElementById('st-total-time').textContent  = framesToHMS(s.totalFrames || 0);
+  document.getElementById('st-hi-time').textContent     = framesToMS(s.hiFrames     || 0);
+
+  document.getElementById('device-select-screen').style.display = 'none';
+  document.getElementById('stats-screen').style.display = 'flex';
+}
+
   // ===== デバイスモード管理 =====
 let deviceMode = null;  // 'pc' または 'mobile'
 let CANVAS_WIDTH = 600;
@@ -381,7 +466,9 @@ function initGame() {
   itemSpawnTimer = 0;
   bossPattern = patterns[0];
   bossColor = bossPattern.color;
-  document.getElementById('overlay').style.display = 'none';
+document.getElementById('overlay').style.display = 'none';
+  document.getElementById('gameover-overlay').style.display = 'none';
+  document.getElementById('boss-bar-wrap').style.display = 'block';
   updateUI();
   updateItemStockUI();
   updateEffectDisplay();
@@ -687,6 +774,7 @@ function update() {
         if(lives <= 0) {
           state = 'dead';
           bgm.pause();
+          recordGameResult(score, graze, gameTime);
           showOverlay('ゲームオーバー', `SCORE: ${score.toLocaleString()} / かすり: ${graze}\n記録をシェア`, '再挑戦');
         }
         break;
@@ -724,13 +812,19 @@ function updateUI() {
 }
 
 function showOverlay(title, msg, btn) {
-  let ov = document.getElementById('overlay');
+  let ov = document.getElementById('gameover-overlay');
   const gameUrl   = "https://dayu-otya.github.io/poporindd/";
   const shareText = `【ぽぽりんの弾幕避け】\nSCORE: ${score.toLocaleString()} \nかすり: ${graze}\n時間: ${document.getElementById('time-val').textContent}\n${gameUrl}\n#ポポと岐阜\n#ぽぽりん`;
   const encoded   = encodeURIComponent(shareText);
   const xUrl       = `https://twitter.com/intent/tweet?text=${encoded}`;
   const bskyUrl    = `https://bsky.app/intent/compose?text=${encoded}`;
   const Karotter   = `https://karotter.com/?compose=1=${encoded}`;
+
+    const btnStyle = (color) => `
+    display:inline-block;padding:8px 16px;font-size:13px;cursor:pointer;
+    border:0.5px solid ${color};background:${color}33;color:#fff;
+    border-radius:8px;text-decoration:none;letter-spacing:0.04em;
+    transition:background 0.15s;`;
 
   ov.innerHTML = `
     <h2>${title}</h2>
@@ -740,8 +834,7 @@ function showOverlay(title, msg, btn) {
       <a href="${bskyUrl}" target="_blank" rel="noopener" style="${btnStyle('#0085ff')}">🦋 Bluesky</a>
       <a href="${Karotter}" target="_blank" rel="noopener" style="${btnStyle('#0077ca')}">🗾 Karotter</a>
     </div>
-    <!-- ★ ボタングループを追加 ★ -->
-    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;justify-content:center">
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;justify-content:center">
       <button id="retry-btn" style="padding:10px 24px;font-size:14px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;letter-spacing:0.04em;transition:background 0.15s">
         🔄 ${btn}
       </button>
@@ -760,67 +853,22 @@ function showOverlay(title, msg, btn) {
 }
 
 function goHome() {
-  // ゲーム状態をリセット
   state = 'idle';
   bullets = [];
   dropItems = [];
   itemStock = [null, null, null];
   activeEffects = {};
-  
-  // デバイス選択画面を表示
-  let ov = document.getElementById('overlay');
-  ov.style.display = 'flex';
-  ov.innerHTML = '';  // 既存の内容をクリア
-  
-  // デバイス選択画面のHTMLを再構築
-  ov.innerHTML = `
-  <div id="game-start-screen" style="display:none">
-  <h2>ぽぽりんで弾幕避け！</h2>
-  <p id="game-start-text" style="font-size:13px;color:#aab;margin-bottom:16px"></p>
-  <button id="start-btn" style="padding:10px 28px;font-size:14px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;">
-    ゲーム開始
-  </button>
-</div>
-    <div id="device-select-screen">
-      <h2>ぽぽりんで弾幕避け！</h2>
-      <p style="font-size:13px;color:#aab;margin-bottom:16px">プレイ環境を選択してね</p>
-      
-      <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;justify-content:center">
-        <button id="select-pc-btn" style="padding:12px 24px;font-size:14px;cursor:pointer;border:1.5px solid #7ad4e8;background:rgba(122,212,232,0.15);color:#7ad4e8;border-radius:8px;letter-spacing:0.05em;transition:all 0.2s;font-weight:500">
-          💻 PC版
-        </button>
-        <button id="select-mobile-btn" style="padding:12px 24px;font-size:14px;cursor:pointer;border:1.5px solid #e87ad4;background:rgba(232,122,212,0.15);color:#e87ad4;border-radius:8px;letter-spacing:0.05em;transition:all 0.2s;font-weight:500">
-          📱 モバイル版（試験的）
-        </button>
-      </div>
 
-      <p style="font-size:12px;color:#666;margin-bottom:12px">操作: マウス・キーボード・タッチ対応</p>
-      
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:12px;color:#aab;justify-content:center">
-        🔊 <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.5" style="width:100px;cursor:pointer;">
-      </div>
-    </div>
-  `;
-  
-  // イベントリスナーを再設定
-  document.getElementById('select-pc-btn').addEventListener('click', () => {
-    setDeviceMode('pc');
-    showGameStartScreen('PC版ゲーム');
-  });
+  document.getElementById('gameover-overlay').style.display = 'none';
+  document.getElementById('boss-bar-wrap').style.display = 'none';
+  document.getElementById('phase-label').style.display = 'none';
+  document.getElementById('game-start-screen').style.display = 'none';
+  document.getElementById('stats-screen').style.display = 'none';
+  document.getElementById('device-select-screen').style.display = 'block';
+  document.getElementById('overlay').style.display = 'flex';
 
-  document.getElementById('select-mobile-btn').addEventListener('click', () => {
-    setDeviceMode('mobile');
-    showGameStartScreen('モバイル版ゲーム');
-  });
-  
-  document.getElementById('vol-slider').addEventListener('input', e => {
-    bgm.volume = parseFloat(e.target.value);
-  });
-}
-
-function btnStyle(bg) {
-  return `display:inline-block;padding:7px 16px;background:${bg};color:#fff;`
-       + `border-radius:6px;font-size:13px;text-decoration:none;border:none;cursor:pointer;`;
+  updateItemStockUI();
+  updateEffectDisplay();
 }
 
 // ===== DRAW =====
@@ -1070,6 +1118,11 @@ document.addEventListener('keyup', e => {
 bgm.volume = 0.5;
 document.getElementById('vol-slider').addEventListener('input', e => {
   bgm.volume = parseFloat(e.target.value);
+});
+document.getElementById('stats-btn').addEventListener('click', showStatsScreen);
+document.getElementById('back-from-stats-btn').addEventListener('click', () => {
+  document.getElementById('stats-screen').style.display = 'none';
+  document.getElementById('device-select-screen').style.display = 'block';
 });
 loop();
 window.addEventListener('resize', () => {

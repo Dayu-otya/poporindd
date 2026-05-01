@@ -7,12 +7,11 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  background: #ffffff;/*公開時は「
   background-image: url('背景画像.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;」に変更*/
+  background-attachment: fixed;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -526,7 +525,7 @@ const patterns = [
 
 
 const playerImgs = [new Image(), new Image()];
-playerImgs[0].src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';// 公開時は「playerImg.src = 'ぽぽりん.png';」に切り替え
+playerImg.src = 'ぽぽりん.png';
 playerImgs[1].src = 'ぽぽりん2.png';
 let selectedChara = 0;
 let playerImg = playerImgs[0];

@@ -85,6 +85,7 @@ body.pc-mode #game-wrap {
   padding: 1rem 0;
 }
 
+
 canvas { display: block; }
 #ui-bar {
   display: flex;
@@ -289,9 +290,36 @@ canvas { display: block; }
   font-weight: 500;
   letter-spacing: 0.05em;
 }
+
 </style>
 </head>
 <body>
+  <div id="footer-buttons" style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap;padding:0 12px">
+  <button onclick="showInfoPanel('howToPlay')" style="padding:8px 16px;font-size:12px;cursor:pointer;border:0.5px solid #7ad4e8;background:rgba(122,212,232,0.15);color:#000000;border-radius:8px;transition:all 0.2s">
+    📖 遊び方
+  </button>
+  <button onclick="showInfoPanel('aboutItems')" style="padding:8px 16px;font-size:12px;cursor:pointer;border:0.5px solid #e87ad4;background:rgba(232,122,212,0.15);color:#000000;border-radius:8px;transition:all 0.2s">
+    💝 アイテム説明
+  </button>
+  <button onclick="showInfoPanel('thanks')" style="padding:8px 16px;font-size:12px;cursor:pointer;border:0.5px solid #f4c875;background:rgba(244,200,117,0.15);color:#000000;border-radius:8px;transition:all 0.2s">
+    🙏 サンクス
+  </button>
+  <button onclick="showInfoPanel('credits')" style="padding:8px 16px;font-size:12px;cursor:pointer;border:0.5px solid #aaa;background:rgba(150,150,150,0.15);color:#000000;border-radius:8px;transition:all 0.2s">
+    🎬 クレジット
+  </button>
+  <button onclick="showInfoPanel('Links')" style="padding:8px 16px;font-size:12px;cursor:pointer;border:0.5px solid #7ae880;background:rgba(122, 232, 155, 0.15);color:#000000;border-radius:8px;transition:all 0.2s">
+    🔗 リンク集
+  </button>
+</div>
+  <div id="info-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:100;flex-direction:column;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#1a0a2a;border:1px solid rgba(200,160,255,0.6);border-radius:12px;padding:30px;max-width:500px;max-height:80vh;overflow-y:auto;color:#ccc">
+    <h2 id="info-title" style="font-size:20px;color:#e87ad4;margin-bottom:16px;text-align:center;letter-spacing:0.05em"></h2>
+    <p id="info-content" style="font-size:14px;line-height:1.8;color:#aab;white-space:pre-wrap;margin-bottom:20px"></p>
+    <button id="close-info-btn" style="width:100%;padding:10px;font-size:13px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;transition:background 0.15s">
+      閉じる
+    </button>
+  </div>
+</div>
 <div id="game-wrap">
 <div id="ui-bar">
   <div id="lives-display">
@@ -1223,6 +1251,43 @@ document.getElementById('back-from-stats-btn').addEventListener('click', () => {
   document.getElementById('stats-screen').style.display = 'none';
   document.getElementById('device-select-screen').style.display = 'block';
 });
+
+const infoContents = {
+  thanks: {
+    title: 'サンクス',
+    content: 'ぽぽりんの弾幕避けをプレイしてくれてありがとうございます！\n\n不具合報告やご意見は、Karotterアカウント "だゆ（@DA）" までお寄せください。\n\nまた遊んでね。'
+  },
+  howToPlay: {
+    title: '遊び方',
+    content: '【基本操作】\n・マウス・タッチ：プレイヤーを移動\n・キーボード：矢印キーで移動\n\n【ゲームの目的】\n露炉の犬（敵）が放つ弾を避けながら、できるだけ長く生き残りましょう。\n\n【アイテム】\n画面上から落ちてくるアイテムを触ると、画面下のスロットに追加されます。数字キー1〜3で発動できます。'
+  },
+  aboutItems: {
+    title: 'アイテム説明',
+    content: '【無敵5秒】💛\n一定時間、弾による被弾を無効化します。\n\n【判定縮小8秒】💙\nプレイヤーの当たり判定が小さくなり、かすりやすくなります。\n\n【スコア2倍10秒】❤️\n獲得スコアが2倍になります。かすりボーナスも2倍！\n\n【弾消去】💜\n画面上のすべての弾を消し去り、スコアボーナスを獲得できます。'
+  },
+  credits: {
+    title: 'クレジット',
+    content: 'ぽぽりんイラスト:なすび。 様\n\nぽぽりんドット：おんJ民 様\n\nBGM：準備中\n\nぽぽりん公式サイト:\n準備中'
+  },
+  Links: {
+    title: 'リンク集',
+    content: '連絡先：\nhttps://karotter.com/profile/DA\n\nポポと岐阜公式アカウント：\nhttps://karotter.com/profile/popotogihu\n\nぽぽりん公式アカウント：\nhttps://karotter.com/profile/popo_rin\n\nぽぽりん公式サイト:\n準備中'
+  }
+};
+
+function showInfoPanel(key) {
+  const info = infoContents[key];
+  if(!info) return;
+  
+  document.getElementById('info-title').textContent = info.title;
+  document.getElementById('info-content').textContent = info.content;
+  document.getElementById('info-panel').style.display = 'flex';
+}
+
+document.getElementById('close-info-btn').addEventListener('click', () => {
+  document.getElementById('info-panel').style.display = 'none';
+});
+
 loop();
 window.addEventListener('resize', () => {
   if(deviceMode !== 'mobile') return;

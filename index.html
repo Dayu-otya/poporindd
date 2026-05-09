@@ -21,6 +21,48 @@ body {
   color: #ccc;
 }
 
+/* レスポンシブ対応の強化 */
+@media (max-width: 600px) {
+  body {
+    padding: 0;
+    margin: 0;
+  }
+  
+  #game-wrap {
+    width: 100vw;
+    padding: 0;
+  }
+  
+  #canvas-container {
+    width: 100vw;
+    height: 100vh;
+    aspect-ratio: auto !important;
+    border-radius: 0;
+  }
+  
+  #ui-bar {
+    max-width: 100vw;
+    font-size: 12px;
+    padding: 8px;
+  }
+  
+  #item-stock-bar {
+    max-width: 100vw;
+    gap: 4px;
+    min-height: 48px;
+  }
+  
+  .item-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  
+  .item-label {
+    font-size: 8px;
+  }
+}
+
 #home-btn:hover {
   background: rgba(150,150,150,0.5);
   transform: scale(1.05);
@@ -501,25 +543,44 @@ function setDeviceMode(mode) {
   deviceMode = mode;
   
   if(mode === 'mobile') {
-    CANVAS_WIDTH = window.innerWidth;
-    CANVAS_HEIGHT = window.innerWidth * (560 / 600);  // アスペクト比維持
     document.body.classList.add('mobile-mode');
     document.body.classList.remove('pc-mode');
+
+    updateMobileCanvasSize();
   } else {
     CANVAS_WIDTH = 600;
     CANVAS_HEIGHT = 560;
+    gameW = CANVAS_WIDTH;
+    gameH = CANVAS_HEIGHT;
+    canvas.width = gameW;
+    canvas.height = gameH;
     document.body.classList.add('pc-mode');
     document.body.classList.remove('mobile-mode');
   }
   
-  // キャンバスの実寸法を更新
-  gameW = CANVAS_WIDTH;
-  gameH = CANVAS_HEIGHT;
-  canvas.width = gameW;
-  canvas.height = gameH;
-  
   console.log(`Mode: ${mode} | Canvas: ${gameW}x${gameH}`);
 }
+
+function updateMobileCanvasSize() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const aspectRatio = 560 / 600;  
+  
+
+  if(vw < vh) {
+
+    gameW = vw;
+    gameH = vw * aspectRatio;
+  } else {
+
+    gameH = vh;
+    gameW = vh / aspectRatio;
+  }
+  
+  canvas.width = gameW;
+  canvas.height = gameH;
+}
+
 const canvas = document.getElementById('gc');
 const ctx = canvas.getContext('2d');
 const bgm = document.getElementById('bgm');
@@ -1235,21 +1296,37 @@ function showGameStartScreen(modeLabel) {
 }
 canvas.addEventListener('mousemove', e => {
   let r = canvas.getBoundingClientRect();
-  mouseX = (e.clientX - r.left) * (gameW / r.width);
-  mouseY = (e.clientY - r.top) * (gameH / r.height);
+  const scaleX = gameW / r.width;
+  const scaleY = gameH / r.height;
+  
+  mouseX = (e.clientX - r.left) * scaleX;
+  mouseY = (e.clientY - r.top) * scaleY;
+  
+  mouseX = Math.max(0, Math.min(gameW, mouseX));
+  mouseY = Math.max(0, Math.min(gameH, mouseY));
 });
+
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
   let r = canvas.getBoundingClientRect();
   let t = e.touches[0];
-  mouseX = (t.clientX - r.left) * (gameW / r.width);
-  mouseY = (t.clientY - r.top) * (gameH / r.height);
-}, { passive: false });
+  
 
+  const scaleX = gameW / r.width;
+  const scaleY = gameH / r.height;
+  
+  mouseX = (t.clientX - r.left) * scaleX;
+  mouseY = (t.clientY - r.top) * scaleY;
+  
+
+  mouseX = Math.max(0, Math.min(gameW, mouseX));
+  mouseY = Math.max(0, Math.min(gameH, mouseY));
+}, { passive: false });
 document.addEventListener('keydown', e => {
   keys[e.code] = true;
   if(e.code === 'ShiftLeft' || e.code === 'ShiftRight') shift = true;
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+
   // 数字キー 1〜3 でアイテム発動
   if(e.code === 'Digit1') useItem(0);
   if(e.code === 'Digit2') useItem(1);
@@ -1310,22 +1387,10 @@ loop();
 window.addEventListener('resize', () => {
   if(deviceMode !== 'mobile') return;
   
-  // 向きが変わったことを検出
-  const newW = window.innerWidth;
+
+  updateMobileCanvasSize();
   
-  if(gameW !== newW && state === 'play') {
-    // ゲームを一時停止
-    state = 'paused';
-    
-    // キャンバス更新
-    gameW = newW;
-    gameH = newW * (560 / 600);
-    canvas.width = gameW;
-    canvas.height = gameH;
-    
-    // 再開ボタンを表示
-    showPauseOverlay();
-  }
+  console.log(`Resized: ${gameW}x${gameH}`);
 });
 
 function showPauseOverlay() {

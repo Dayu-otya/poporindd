@@ -1024,7 +1024,7 @@ function showOverlay(title, msg, btn) {
   const encoded   = encodeURIComponent(shareText);
   const xUrl       = `https://twitter.com/intent/tweet?text=${encoded}`;
   const bskyUrl    = `https://bsky.app/intent/compose?text=${encoded}`;
-  const Karotter   = `https://karotter.com/?compose=1=${encoded}`;
+  const Karotter   = `https://karotter.com/?compose=1&text=${encoded}`;
 
     const btnStyle = (color) => `
     display:inline-block;padding:8px 16px;font-size:13px;cursor:pointer;

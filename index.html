@@ -83,7 +83,6 @@ body {
   border: 0.5px solid #444;
   border-radius: 8px;
   overflow: hidden;
-  background: #00416e;
 }
 
 /* ===== デバイスモード分岐 ===== */
@@ -348,6 +347,109 @@ body.mobile-mode #logo-container {
   display: none;
 }
 
+/* ===== 仮想スティック ===== */
+#vstick-zone {
+  display: none;
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 110px;
+  z-index: 10;
+  pointer-events: none;
+}
+body.mobile-mode #vstick-zone {
+  display: block;
+}
+
+@media (orientation: landscape) {
+  body.mobile-mode #vstick-zone {
+    top: 0; bottom: 0; left: 0; right: auto;
+    height: auto;
+    width: 90px;
+  }
+}
+
+#vstick-base {
+  position: absolute;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.18);
+  left: 16px; bottom: 16px;
+  pointer-events: auto;
+  touch-action: none;
+}
+@media (orientation: landscape) {
+  body.mobile-mode #vstick-base {
+    left: 5px; bottom: 20px;
+  }
+}
+
+#vstick-knob {
+  position: absolute;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.28);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: transform 0.05s;
+}
+
+@media (orientation: landscape) {
+  body.mobile-mode #item-stock-bar {
+    display: none;
+  }
+  body.mobile-mode #item-overlay-bar {
+    display: flex;
+  }
+}
+
+
+#item-overlay-bar {
+  display: none;
+  position: absolute;
+  right: 6px; top: 28px;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 12;
+  pointer-events: auto;
+}
+body.mobile-mode #item-overlay-bar {
+
+  display: flex;
+  flex-direction: row;
+  right: 6px; bottom: 6px; top: auto;
+}
+@media (orientation: landscape) {
+  body.mobile-mode #item-overlay-bar {
+
+    flex-direction: column;
+    right: 6px; top: 28px; bottom: auto;
+  }
+}
+
+.item-ov-btn {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  background: rgba(2,6,21,0.7);
+  font-size: 17px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: white;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.item-ov-btn.active {
+  border-color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.1);
+}
+.item-ov-btn.empty {
+  opacity: 0.3;
+}
+
 </style>
 </head>
 <body>
@@ -410,6 +512,19 @@ body.mobile-mode #logo-container {
   <div id="canvas-container">
     <canvas id="gc" width="600" height="560"></canvas>
     <div id="boss-bar-wrap"><div id="boss-bar" style="width:100%"></div></div>
+      <div id="item-overlay-bar">
+      <button class="item-ov-btn empty" id="item-ov-0" onclick="useItem(0)">—</button>
+      <button class="item-ov-btn empty" id="item-ov-1" onclick="useItem(1)">—</button>
+      <button class="item-ov-btn empty" id="item-ov-2" onclick="useItem(2)">—</button>
+    </div>
+
+    <!-- 仮想スティック（モバイル用） -->
+    <div id="vstick-zone">
+      <div id="vstick-base">
+        <div id="vstick-knob"></div>
+      </div>
+    </div>
+
     <div id="phase-label" style="display:none"></div>
     <div id="overlay" style="display:flex">
   <div id="device-select-screen">
@@ -677,6 +792,7 @@ document.getElementById('overlay').style.display = 'none';
   document.getElementById('boss-bar-wrap').style.display = 'block';
   updateUI();
   updateItemStockUI();
+  updateItemOverlayUI()
   updateEffectDisplay();
   
   // グローバル定数を更新（ボス・プレイヤー初期位置など）
@@ -739,6 +855,25 @@ function updateItemStockUI() {
       btn.style.boxShadow = '';
       lbl.textContent = '空き';
       lbl.style.color = 'rgba(255,255,255,0.3)';
+    }
+  }
+  updateItemOverlayUI();
+}
+
+function updateItemOverlayUI() {
+  for(let i = 0; i < 3; i++) {
+    const btn = document.getElementById('item-ov-' + i);
+    if(!btn) continue;
+    const type = itemStock[i];
+    if(type) {
+      const def = ITEM_DEFS[type];
+      btn.textContent = def.emoji;
+      btn.className = 'item-ov-btn active';
+      btn.style.borderColor = def.color + 'aa';
+    } else {
+      btn.textContent = '—';
+      btn.className = 'item-ov-btn empty';
+      btn.style.borderColor = '';
     }
   }
 }
@@ -950,7 +1085,12 @@ function update() {
   const right = keys['ArrowRight'] || keys['KeyD'];
   const usingKeyboard = up || down || left || right;
 
-  if(usingKeyboard) {
+  if(vstick.active && (Math.abs(vstick.dx) > 0.05 || Math.abs(vstick.dy) > 0.05)) {
+    // 仮想スティック入力
+    player.x += vstick.dx * speed;
+    player.y += vstick.dy * speed;
+    mouseX = player.x; mouseY = player.y;
+  } else if(usingKeyboard) {
     const diag = (up || down) && (left || right) ? speed / Math.SQRT2 : speed;
     if(up)    player.y -= diag;
     if(down)  player.y += diag;
@@ -963,6 +1103,7 @@ function update() {
     if(d > speed) { player.x += dx/d*speed; player.y += dy/d*speed; }
     else { player.x = mouseX; player.y = mouseY; }
   }
+  
   player.x = Math.max(12, Math.min(gameW-12, player.x));
   player.y = Math.max(12, Math.min(gameH-12, player.y));
 
@@ -1392,6 +1533,80 @@ window.addEventListener('resize', () => {
   
   console.log(`Resized: ${gameW}x${gameH}`);
 });
+
+// ===== 仮想スティック =====
+const vstickBase = document.getElementById('vstick-base');
+const vstickKnob = document.getElementById('vstick-knob');
+
+let vstick = {
+  active: false,
+  id: null,
+  baseX: 0, baseY: 0,   
+  dx: 0, dy: 0,          
+  radius: 36,            
+};
+
+function vstickGetBaseCenter() {
+  const r = canvas.getBoundingClientRect();
+  const br = vstickBase.getBoundingClientRect();
+  const scaleX = gameW / r.width;
+  const scaleY = gameH / r.height;
+  return {
+    x: (br.left + br.width / 2 - r.left) * scaleX,
+    y: (br.top + br.height / 2 - r.top) * scaleY,
+  };
+}
+
+function vstickRepositionOnResize() {
+}
+
+vstickBase.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if(state !== 'play') return;
+  const t = e.changedTouches[0];
+  vstick.active = true;
+  vstick.id = t.identifier;
+  const c = vstickGetBaseCenter();
+  vstick.baseX = c.x;
+  vstick.baseY = c.y;
+  vstick.dx = 0; vstick.dy = 0;
+}, { passive: false });
+
+vstickBase.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if(!vstick.active) return;
+  for(const t of e.changedTouches) {
+    if(t.identifier !== vstick.id) continue;
+    const r = canvas.getBoundingClientRect();
+    const scaleX = gameW / r.width;
+    const scaleY = gameH / r.height;
+    const tx = (t.clientX - r.left) * scaleX;
+    const ty = (t.clientY - r.top)  * scaleY;
+    let dx = tx - vstick.baseX;
+    let dy = ty - vstick.baseY;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const maxLen = vstick.radius;
+    if(len > maxLen) { dx = dx/len*maxLen; dy = dy/len*maxLen; }
+    vstick.dx = dx / maxLen;
+    vstick.dy = dy / maxLen;
+
+    const dispScale = vstickBase.getBoundingClientRect().width / 80; 
+    vstickKnob.style.transform = `translate(calc(-50% + ${dx / scaleX * dispScale}px), calc(-50% + ${dy / scaleY * dispScale}px))`;
+  }
+}, { passive: false });
+
+function vstickEnd(e) {
+  e.preventDefault();
+  for(const t of e.changedTouches) {
+    if(t.identifier === vstick.id) {
+      vstick.active = false;
+      vstick.dx = 0; vstick.dy = 0;
+      vstickKnob.style.transform = 'translate(-50%, -50%)';
+    }
+  }
+}
+vstickBase.addEventListener('touchend',    vstickEnd, { passive: false });
+vstickBase.addEventListener('touchcancel', vstickEnd, { passive: false });
 
 function showPauseOverlay() {
   let ov = document.getElementById('overlay');

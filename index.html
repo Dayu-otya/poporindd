@@ -194,7 +194,7 @@ canvas { display: block; }
   background: rgba(255,255,255,0.1);
   border-radius: 2px;
   overflow: hidden;
-  #boss-bar-wrap {
+#boss-bar-wrap {
   position: absolute; top: 8px; left: 8px; right: 8px; height: 4px;
   background: rgba(255,255,255,0.1);
   border-radius: 2px;
@@ -203,15 +203,16 @@ canvas { display: block; }
 
 @media (orientation: landscape) {
   body.mobile-mode #boss-bar-wrap {
-    left: 120px;  
-    right: 100px;  
+    left: 100px;   
+    right: 160px;  
     top: 12px;
-    height: 5px;  
+    height: 5px;
   }
   
   body.mobile-mode #phase-label {
-    top: 20px;
-    font-size: 12px;
+    top: 22px;
+    font-size: 13px;
+    letter-spacing: 0.1em;
   }
 }
 }
@@ -279,6 +280,14 @@ canvas { display: block; }
   display: flex; flex-direction: column; gap: 3px;
   pointer-events: none;
 }
+
+@media (orientation: landscape) {
+  body.mobile-mode #effect-display {
+    bottom: 8px;
+    left: 100px;  
+  }
+}
+
 .effect-badge {
   font-size: 10px;
   padding: 2px 6px;
@@ -383,7 +392,7 @@ body.mobile-mode #logo-container {
 /* ===== 仮想スティック ===== */
 #vstick-zone {
   display: none;
-  position: absolute;
+  position: fixed;  /* absolute → fixed に変更 */
   bottom: 0; left: 0; right: 0;
   height: 110px;
   z-index: 10;
@@ -393,11 +402,15 @@ body.mobile-mode #vstick-zone {
   display: block;
 }
 
+/* 横画面時は右下に配置 */
 @media (orientation: landscape) {
   body.mobile-mode #vstick-zone {
-    top: 0; bottom: 0; left: 0; right: auto;
-    height: auto;
-    width: 90px;
+    top: auto;
+    bottom: 0;
+    left: auto;
+    right: 0;  
+    height: 140px;  
+    width: 140px;   
   }
 }
 
@@ -414,16 +427,17 @@ body.mobile-mode #vstick-zone {
 
 @media (orientation: landscape) {
   body.mobile-mode #vstick-base {
-    left: 20px;
-    bottom: 50%;
-    transform: translateY(50%);  
-    width: 100px;  
-    height: 100px;
+    left: auto;
+    right: 20px;     
+    bottom: 20px;    
+    transform: none;  
+    width: 110px;     
+    height: 110px;
   }
   
   body.mobile-mode #vstick-knob {
-    width: 42px;
-    height: 42px;
+    width: 46px;
+    height: 46px;
   }
 }
 
@@ -465,13 +479,21 @@ body.mobile-mode #item-overlay-bar {
   right: 6px; bottom: 6px; top: auto;
 }
 @media (orientation: landscape) {
+body.mobile-mode #item-overlay-bar {
+  display: flex;
+  flex-direction: row;
+  right: 6px; bottom: 6px; top: auto;
+}
+
+@media (orientation: landscape) {
   body.mobile-mode #item-overlay-bar {
     flex-direction: column;
-    right: 20px;
+    left: 20px;     
+    right: auto;
     top: 50%;
-    transform: translateY(-50%);  
+    transform: translateY(-50%);
     bottom: auto;
-    gap: 8px;
+    gap: 10px;      
   }
 }
 

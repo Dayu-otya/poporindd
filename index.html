@@ -83,6 +83,11 @@ body {
   border: 0.5px solid #444;
   border-radius: 8px;
   overflow: hidden;
+  background-image: url('背景画像.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 /* ===== デバイスモード分岐 ===== */
@@ -98,6 +103,14 @@ body.mobile-mode #canvas-container {
   aspect-ratio: 9 / 10.5;
   max-width: 100%;
   border-radius: 0;
+}
+
+@media (orientation: landscape) {
+  body.mobile-mode #canvas-container {
+    width: auto;
+    height: 100vh;
+    aspect-ratio: 10.5 / 9; 
+  }
 }
 
 body.mobile-mode #game-wrap {
@@ -181,6 +194,26 @@ canvas { display: block; }
   background: rgba(255,255,255,0.1);
   border-radius: 2px;
   overflow: hidden;
+  #boss-bar-wrap {
+  position: absolute; top: 8px; left: 8px; right: 8px; height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+@media (orientation: landscape) {
+  body.mobile-mode #boss-bar-wrap {
+    left: 120px;  
+    right: 100px;  
+    top: 12px;
+    height: 5px;  
+  }
+  
+  body.mobile-mode #phase-label {
+    top: 20px;
+    font-size: 12px;
+  }
+}
 }
 #boss-bar { height: 100%; background: #e87ad4; transition: width 0.2s; border-radius: 2px; }
 #graze-label {
@@ -378,9 +411,19 @@ body.mobile-mode #vstick-zone {
   pointer-events: auto;
   touch-action: none;
 }
+
 @media (orientation: landscape) {
   body.mobile-mode #vstick-base {
-    left: 5px; bottom: 20px;
+    left: 20px;
+    bottom: 50%;
+    transform: translateY(50%);  
+    width: 100px;  
+    height: 100px;
+  }
+  
+  body.mobile-mode #vstick-knob {
+    width: 42px;
+    height: 42px;
   }
 }
 
@@ -423,9 +466,35 @@ body.mobile-mode #item-overlay-bar {
 }
 @media (orientation: landscape) {
   body.mobile-mode #item-overlay-bar {
-
     flex-direction: column;
-    right: 6px; top: 28px; bottom: auto;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);  
+    bottom: auto;
+    gap: 8px;
+  }
+}
+
+.item-ov-btn {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  background: rgba(2,6,21,0.7);
+  font-size: 17px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: white;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+@media (orientation: landscape) {
+  body.mobile-mode .item-ov-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
   }
 }
 
@@ -681,7 +750,6 @@ function updateMobileCanvasSize() {
   const vh = window.innerHeight;
   const aspectRatio = 560 / 600;  
   
-
   if(vw < vh) {
 
     gameW = vw;
@@ -694,6 +762,18 @@ function updateMobileCanvasSize() {
   
   canvas.width = gameW;
   canvas.height = gameH;
+  
+  if(vw > vh) {
+    stars = [];
+    for(let i = 0; i < 120; i++) {
+      stars.push({ 
+        x: Math.random()*gameW, 
+        y: Math.random()*gameH, 
+        s: Math.random()*1.5+0.3, 
+        sp: Math.random()*0.4+0.1 
+      });
+    }
+  }
 }
 
 const canvas = document.getElementById('gc');
@@ -747,7 +827,7 @@ const patterns = [
 
 
 const playerImgs = [new Image(), new Image()];
-playerImgs[0].src = 'ぽぽりん.png';
+playerImgs[0].src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';// 公開時は「playerImgs[0].src = 'ぽぽりん.png';」に切り替え
 playerImgs[1].src = 'ぽぽりん2.png';
 let selectedChara = 0;
 let playerImg = playerImgs[0];
@@ -1448,21 +1528,22 @@ canvas.addEventListener('mousemove', e => {
 });
 
 canvas.addEventListener('touchmove', e => {
+  if(vstick.active) return;
+  
   e.preventDefault();
   let r = canvas.getBoundingClientRect();
   let t = e.touches[0];
   
-
   const scaleX = gameW / r.width;
   const scaleY = gameH / r.height;
   
   mouseX = (t.clientX - r.left) * scaleX;
   mouseY = (t.clientY - r.top) * scaleY;
   
-
   mouseX = Math.max(0, Math.min(gameW, mouseX));
   mouseY = Math.max(0, Math.min(gameH, mouseY));
 }, { passive: false });
+
 document.addEventListener('keydown', e => {
   keys[e.code] = true;
   if(e.code === 'ShiftLeft' || e.code === 'ShiftRight') shift = true;

@@ -392,17 +392,119 @@ body.mobile-mode #logo-container {
 /* ===== 仮想スティック ===== */
 #vstick-zone {
   display: none;
-  position: fixed;  /* absolute → fixed に変更 */
+  position: fixed;
   bottom: 0; left: 0; right: 0;
   height: 110px;
   z-index: 10;
-  pointer-events: none;
+  pointer-events: none;  
 }
 body.mobile-mode #vstick-zone {
   display: block;
 }
 
 /* 横画面時は右下に配置 */
+@media (orientation: landscape) {
+  body.mobile-mode #vstick-zone {
+    top: auto;
+    bottom: 0;
+    left: auto;
+    right: 0;  
+    height: 140px;  
+    width: 140px;
+  }
+}
+
+#vstick-base {
+  position: absolute;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.18);
+  left: 16px; bottom: 16px;
+  pointer-events: auto;  
+  touch-action: none;
+}
+
+@media (orientation: landscape) {
+  body.mobile-mode #vstick-base {
+    left: auto;
+    right: 20px;     
+    bottom: 20px;    
+    width: 110px;     
+    height: 110px;
+  }
+}
+
+#item-overlay-bar {
+  display: none;
+  position: absolute;
+  right: 6px; top: 28px;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 12;
+  pointer-events: auto; 
+}
+
+body.mobile-mode #item-overlay-bar {
+  display: flex;
+  flex-direction: row;
+  right: 6px; bottom: 6px; top: auto;
+  pointer-events: auto; 
+}
+
+@media (orientation: landscape) {
+  body.mobile-mode #item-overlay-bar {
+    flex-direction: column;
+    left: 20px;     
+    right: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    bottom: auto;
+    gap: 10px;
+    pointer-events: auto; 
+    z-index: 15;       
+  }
+}
+
+.item-ov-btn {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  background: rgba(2,6,21,0.7);
+  font-size: 17px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: white;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: auto; 
+}
+
+@media (orientation: landscape) {
+  body.mobile-mode .item-ov-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+    pointer-events: auto;  
+  }
+}
+
+.item-ov-btn.active {
+  border-color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.1);
+  pointer-events: auto;
+}
+
+.item-ov-btn.empty {
+  opacity: 0.3;
+  pointer-events: auto; 
+}
+body.mobile-mode #vstick-zone {
+  display: block;
+}
+
+
 @media (orientation: landscape) {
   body.mobile-mode #vstick-zone {
     top: auto;
@@ -849,7 +951,7 @@ const patterns = [
 
 
 const playerImgs = [new Image(), new Image()];
-playerImgs[0].src = 'ぽぽりん.png';
+playerImgs[0].src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';// 公開時は「playerImgs[0].src = 'ぽぽりん.png';」に切り替え
 playerImgs[1].src = 'ぽぽりん2.png';
 let selectedChara = 0;
 let playerImg = playerImgs[0];

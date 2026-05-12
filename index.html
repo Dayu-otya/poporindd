@@ -39,7 +39,6 @@ body {
 #canvas-container {
   position: relative;
   border: 0.5px solid #444;
-  border-radius: 8px;
   overflow: hidden;
   background-image: url('背景画像.png');
   background-size: cover;
@@ -48,58 +47,83 @@ body {
   background-attachment: fixed;
 }
 
-/* ===== デバイスモード分岐 ===== */
-:root {
-  --game-width: 600px;
-  --game-height: 560px;
-}
-
-/* スマホモード */
+/* スマホ横画面 */
 body.mobile-mode #canvas-container {
-  width: auto;
-  height: 100vh;
-  aspect-ratio: 10.5 / 9; 
-  border-radius: 0;
-}
-
-body.mobile-mode #game-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100vw;
+  height: 100vh;
+  border: none;
+  border-radius: 0;
+  margin: 0;
   padding: 0;
 }
 
-body.mobile-mode #ui-bar {
-  max-width: 100vw;
-  font-size: 11px;
-}
-
-body.mobile-mode #item-stock-bar {
-  display: none;
-}
-
-/* PCモード（デフォルト） */
+/* PC版 */
 body.pc-mode #canvas-container {
   width: 600px;
   height: 560px;
   border-radius: 8px;
+  border: 0.5px solid #444;
 }
 
-body.pc-mode #game-wrap {
-  width: auto;
-  padding: 1rem 0;
+body.mobile-mode #game-wrap {
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
 }
 
+body.mobile-mode #ui-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(2, 6, 21, 0.85);
+  padding: 8px 12px;
+  max-width: 100vw;
+  font-size: 12px;
+  z-index: 10;
+  gap: 20px;
+}
+
+body.mobile-mode #item-stock-bar {
+  display: none !important;  
+}
 
 canvas { display: block; }
 #ui-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  max-width: 600px;
-  padding: 0.5rem 0;
+  padding: 8px 12px;
   font-size: 13px;
   color: #888;
+  z-index: 20;
+  background: rgba(2, 6, 21, 0.9);
+  gap: 12px;
 }
+
+body.pc-mode #ui-bar {
+  position: relative;
+  max-width: 600px;
+  background: transparent;
+  padding: 0.5rem 0;
+  z-index: auto;
+}
+
+body.mobile-mode #ui-bar {
+  width: 100vw;
+  padding: 8px 10px;
+  font-size: 11px;
+  gap: 10px;
+}
+
 #lives-display { display: flex; gap: 4px; align-items: center; }
 .life-icon {
   width: 10px; height: 10px;
@@ -143,6 +167,7 @@ canvas { display: block; }
   background: rgba(255,255,255,0.1);
   border-radius: 2px;
   overflow: hidden;
+  }
 
 #boss-bar-wrap {
   position: absolute; top: 8px; left: 8px; right: 8px; height: 4px;
@@ -339,32 +364,42 @@ body.mobile-mode #logo-container {
 #vstick-zone {
   display: none;
   position: fixed;
-  top: auto;
-  bottom: 0;
-  left: auto;
-  right: 0;  
-  height: 140px;  
-  width: 140px;
+  bottom: 12px;
+  left: 12px;
+  width: auto;
+  height: auto;
   z-index: 10;
-  pointer-events: none;  
+  pointer-events: none;
 }
 
 body.mobile-mode #vstick-zone {
   display: block;
+  pointer-events: auto;
 }
 
 #vstick-base {
-  position: absolute;
-  width: 110px;
-  height: 110px;
+  position: relative;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.06);
-  border: 4.5px solid rgb(0, 0, 0);
-  left: auto;
-  right: 20px;     
-  bottom: 20px;
-  pointer-events: auto;  
+  background: rgba(255, 255, 255, 0.08);
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  pointer-events: auto;
   touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#vstick-knob {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(100, 100, 100, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+  transition: none;
 }
 
 #item-overlay-bar {
@@ -440,80 +475,70 @@ body.mobile-mode .item-ov-btn {
 
 #item-overlay-bar {
   display: none;
-  position: absolute;
-  right: 6px; top: 28px;
-  flex-direction: column;
-  gap: 5px;
-  z-index: 12;
+  position: fixed;
+  z-index: 15;
   pointer-events: auto;
 }
-body.mobile-mode #item-overlay-bar {
 
-  display: flex;
-  flex-direction: row;
-  right: 6px; bottom: 6px; top: auto;
-}
-@media (orientation: landscape) {
 body.mobile-mode #item-overlay-bar {
   display: flex;
   flex-direction: row;
-  right: 6px; bottom: 6px; top: auto;
+  gap: 8px;
+  right: 12px;
+  top: 60px;
+  padding: 0;
+}
+
+@media (orientation: portrait) and (max-height: 800px) {
+  body.mobile-mode #item-overlay-bar {
+    top: 50px;
+    gap: 6px;
+  }
 }
 
 @media (orientation: landscape) {
   body.mobile-mode #item-overlay-bar {
-    flex-direction: column;
-    left: 20px;     
-    right: auto;
-    top: 50%;
-    transform: translateY(-50%);
-    bottom: auto;
-    gap: 10px;      
+    display: flex;
+    flex-direction: row;
+    right: 12px;
+    top: 60px;
+    gap: 8px;
   }
 }
 
-.item-ov-btn {
-  width: 36px; height: 36px;
+body.mobile-mode .item-ov-btn {
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
-  border: 1.5px solid rgba(255,255,255,0.2);
-  background: rgba(2,6,21,0.7);
-  font-size: 17px;
-  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(2, 6, 21, 0.8);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   color: white;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s;
+  pointer-events: auto;
 }
 
-
-@media (orientation: landscape) {
-  body.mobile-mode .item-ov-btn {
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
-  }
+body.mobile-mode .item-ov-btn:active {
+  transform: scale(0.95);
 }
 
-.item-ov-btn {
-  width: 36px; height: 36px;
-  border-radius: 8px;
-  border: 1.5px solid rgba(255,255,255,0.2);
-  background: rgba(2,6,21,0.7);
-  font-size: 17px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  color: white;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
 .item-ov-btn.active {
-  border-color: rgba(255,255,255,0.6);
-  background: rgba(255,255,255,0.1);
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
 }
+
 .item-ov-btn.empty {
-  opacity: 0.3;
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: auto;
 }
 
 </style>
@@ -733,6 +758,11 @@ function setDeviceMode(mode) {
   if(mode === 'mobile') {
     document.body.classList.add('mobile-mode');
     document.body.classList.remove('pc-mode');
+    
+    document.body.style.padding = '0';
+    document.body.style.margin = '0';
+    document.getElementById('game-wrap').style.margin = '0';
+    document.getElementById('game-wrap').style.padding = '0';
 
     updateMobileCanvasSize();
   } else {
@@ -743,31 +773,48 @@ function setDeviceMode(mode) {
     canvas.width = gameW;
     canvas.height = gameH;
     document.body.classList.add('pc-mode');
-    document.body.classList.remove('mobile-mode');
+    document.body.classList.remove('pc-mode');
   }
   
   console.log(`Mode: ${mode} | Canvas: ${gameW}x${gameH}`);
 }
 
 function updateMobileCanvasSize() {
+  const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const aspectRatio = 560 / 600;  
+
+  const PC_WIDTH = 600;
+  const PC_HEIGHT = 560;
+  const aspectRatio = PC_WIDTH / PC_HEIGHT;  // 約 1.071
   
-  // 横画面専用
-  gameH = vh;
-  gameW = vh / aspectRatio;
+  if(vw > vh) {
+    gameH = vh;
+    gameW = gameH * aspectRatio;
+
+    if(gameW > vw) {
+      gameW = vw;
+      gameH = gameW / aspectRatio;
+    }
+  } else {
+
+    gameW = PC_WIDTH;
+    gameH = PC_HEIGHT;
+  }
   
   canvas.width = gameW;
   canvas.height = gameH;
   
-  // 星の再生成
+  const container = document.getElementById('canvas-container');
+  container.style.width = gameW + 'px';
+  container.style.height = gameH + 'px';
+  
   stars = [];
-  for(let i = 0; i < 120; i++) {
+  for(let i = 0; i < Math.floor(gameW * gameH / 3000); i++) {
     stars.push({ 
-      x: Math.random()*gameW, 
-      y: Math.random()*gameH, 
-      s: Math.random()*1.5+0.3, 
-      sp: Math.random()*0.4+0.1 
+      x: Math.random() * gameW, 
+      y: Math.random() * gameH, 
+      s: Math.random() * 1.5 + 0.3, 
+      sp: Math.random() * 0.4 + 0.1 
     });
   }
 }
@@ -823,7 +870,7 @@ const patterns = [
 
 
 const playerImgs = [new Image(), new Image()];
-playerImgs[0].src = 'ぽぽりん.png';
+playerImgs[0].src = 'ぽぽりん.png';」に切り替え
 playerImgs[1].src = 'ぽぽりん2.png';
 let selectedChara = 0;
 let playerImg = playerImgs[0];

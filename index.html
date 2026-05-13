@@ -194,6 +194,7 @@ canvas { display: block; }
   background: rgba(255,255,255,0.1);
   border-radius: 2px;
   overflow: hidden;
+}
 #boss-bar-wrap {
   position: absolute; top: 8px; left: 8px; right: 8px; height: 4px;
   background: rgba(255,255,255,0.1);
@@ -392,7 +393,7 @@ body.mobile-mode #logo-container {
 /* ===== 仮想スティック ===== */
 #vstick-zone {
   display: none;
-  position: fixed;  /* absolute → fixed に変更 */
+  position: fixed;
   bottom: 0; left: 0; right: 0;
   height: 110px;
   z-index: 10;
@@ -402,7 +403,6 @@ body.mobile-mode #vstick-zone {
   display: block;
 }
 
-/* 横画面時は右下に配置 */
 @media (orientation: landscape) {
   body.mobile-mode #vstick-zone {
     top: auto;
@@ -483,19 +483,20 @@ body.mobile-mode #item-overlay-bar {
   display: flex;
   flex-direction: row;
   right: 6px; bottom: 6px; top: auto;
+  }
 }
 
 @media (orientation: landscape) {
   body.mobile-mode #item-overlay-bar {
     flex-direction: column;
-    left: 20px;     
+    left: 20px;
     right: auto;
     top: 50%;
     transform: translateY(-50%);
     bottom: auto;
-    gap: 10px;      
+    gap: 10px;
   }
-}
+} 
 
 .item-ov-btn {
   width: 36px; height: 36px;
@@ -610,6 +611,8 @@ body.mobile-mode #item-overlay-bar {
     </div>
 
     <!-- 仮想スティック（モバイル用） -->
+    <div id="gameover-overlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;flex-direction:column;align-items:center;justify-content:center;color:white;gap:12px;text-align:center;z-index:25;background:rgba(0,0,0,0.6)"></div>
+    <div id="effect-display" style="position:absolute;bottom:32px;left:8px;display:flex;flex-direction:column;gap:3px;pointer-events:none"></div>
     <div id="vstick-zone">
       <div id="vstick-base">
         <div id="vstick-knob"></div>
@@ -617,9 +620,10 @@ body.mobile-mode #item-overlay-bar {
     </div>
 
     <div id="phase-label" style="display:none"></div>
-    <div id="overlay" style="display:flex">
+<div id="overlay" style="display:flex">
+
   <div id="device-select-screen">
-    <h2>ぽぽりんで弾幕避け！</h2>
+    <h2>ぽぽりんで弾幕避け!</h2>
     <p style="font-size:13px;color:#aab;margin-bottom:16px">プレイ環境を選択してね</p>
     
     <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;justify-content:center">
@@ -632,39 +636,50 @@ body.mobile-mode #item-overlay-bar {
     </div>
 
     <p style="font-size:12px;color:#666;margin-bottom:12px">操作: マウス・キーボード・タッチ対応</p>
-    
-<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:12px;color:#aab;justify-content:center">
-      🔊 <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.5" style="width:100px;cursor:pointer;">
-    </div>
-    <button id="stats-btn" style="margin-top:8px;padding:8px 20px;font-size:13px;cursor:pointer;border:0.5px solid rgba(150,150,150,0.5);background:rgba(80,80,80,0.3);color:#aaa;border-radius:8px;">統計を見る</button>
   </div>
 
-<div id="game-start-screen" style="display:none">
-  <h2>ぽぽりんで弾幕避け！</h2>
-  <p id="game-start-text" style="font-size:14px;color:#7ad4e8;margin:0;font-weight:500"></p>
- 
-  <!-- キャラクター選択セクション -->
-  <div class="chara-select-section">
-    <p class="chara-select-label">キャラクターを選んでね</p>
+  <div id="settings-and-start-screen" style="display:none;flex-direction:column;align-items:center;gap:20px">
+    <h2>ぽぽりんで弾幕避け!</h2>
+    <p id="game-start-text" style="font-size:14px;color:#7ad4e8;margin:0;font-weight:500"></p>
     
-    <div id="chara-buttons-container">
-      <button id="chara-btn-0" onclick="selectChara(0)" 
-              style="padding:10px 24px;font-size:13px;cursor:pointer;border:1.5px solid #e87ad4;background:rgba(232,122,212,0.3);color:#fff;border-radius:8px;transition:all 0.2s;font-weight:500;letter-spacing:0.04em">
-        🌸 ぽぽりん
-      </button>
-      <button id="chara-btn-1" onclick="selectChara(1)" 
-              style="padding:10px 24px;font-size:13px;cursor:pointer;border:1.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#aab;border-radius:8px;transition:all 0.2s;font-weight:500;letter-spacing:0.04em">
-        ⭐ ぽぽりん（ドットの姿）
-      </button>
+    <!-- 音量設定 -->
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:12px;color:#aab;justify-content:center">
+      🔊 <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.5" style="width:100px;cursor:pointer;">
     </div>
+    
+    <!-- 統計ボタン -->
+    <button id="stats-btn" style="margin-top:8px;padding:8px 20px;font-size:13px;cursor:pointer;border:0.5px solid rgba(150,150,150,0.5);background:rgba(80,80,80,0.3);color:#aaa;border-radius:8px;">統計を見る</button>
+    
+    <!-- ゲーム開始ボタン -->
+    <button id="proceed-to-chara-btn" style="padding:12px 48px;font-size:15px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;letter-spacing:0.04em;transition:background 0.15s;font-weight:500">
+      次へ（キャラ選択）
+    </button>
   </div>
- 
-  <!-- ゲーム開始ボタン -->
-  <button id="start-btn" 
-          style="padding:12px 48px;font-size:15px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;letter-spacing:0.04em;transition:background 0.15s;font-weight:500">
-    ゲーム開始
-  </button>
-</div>
+
+  <div id="game-start-screen" style="display:none">
+    <h2>ぽぽりんで弾幕避け!</h2>
+    <p id="chara-select-text" style="font-size:14px;color:#7ad4e8;margin:0;font-weight:500">キャラクターを選んでね</p>
+   
+    <div class="chara-select-section">
+      <p class="chara-select-label">キャラクターを選んでね</p>
+      
+      <div id="chara-buttons-container">
+        <button id="chara-btn-0" onclick="selectChara(0)" 
+                style="padding:10px 24px;font-size:13px;cursor:pointer;border:1.5px solid #e87ad4;background:rgba(232,122,212,0.3);color:#fff;border-radius:8px;transition:all 0.2s;font-weight:500;letter-spacing:0.04em">
+          🌸 ぽぽりん
+        </button>
+        <button id="chara-btn-1" onclick="selectChara(1)" 
+                style="padding:10px 24px;font-size:13px;cursor:pointer;border:1.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#aab;border-radius:8px;transition:all 0.2s;font-weight:500;letter-spacing:0.04em">
+          ⭐ ぽぽりん（ドットの姿）
+        </button>
+      </div>
+    </div>
+   
+    <button id="start-btn" 
+            style="padding:12px 48px;font-size:15px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;letter-spacing:0.04em;transition:background 0.15s;font-weight:500">
+      ゲーム開始
+    </button>
+  </div>
 
   <div id="stats-screen" style="display:none;flex-direction:column;align-items:center;gap:10px;">
     <h2 style="font-size:17px;margin-bottom:4px">統計</h2>
@@ -675,12 +690,6 @@ body.mobile-mode #item-overlay-bar {
     <div style="display:flex;justify-content:space-between;width:260px;font-size:13px;border-bottom:0.5px solid rgba(255,255,255,0.1);padding:4px 0;color:#ccc"><span>合計プレイ時間</span><span id="st-total-time" style="color:#e8d4ff">00:00:00</span></div>
     <div style="display:flex;justify-content:space-between;width:260px;font-size:13px;padding:4px 0;color:#ccc"><span>最高プレイ時間</span><span id="st-hi-time" style="color:#e8d4ff">00:00</span></div>
     <button id="back-from-stats-btn" style="margin-top:12px;padding:8px 24px;font-size:13px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.5);background:rgba(100,70,180,0.3);color:#dcd;border-radius:8px;">← 戻る</button>
-  </div>
-
-</div>
-    <div id="effect-display"></div>
-    <div id="gameover-overlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;flex-direction:column;align-items:center;justify-content:center;color:white;gap:12px;text-align:center;z-index:30;background:rgba(0,0,0,0.6);">
-    </div>
   </div>
 </div>
 
@@ -1189,8 +1198,9 @@ function update() {
 
   if(vstick.active && (Math.abs(vstick.dx) > 0.05 || Math.abs(vstick.dy) > 0.05)) {
     // 仮想スティック入力
-    player.x += vstick.dx * speed;
-    player.y += vstick.dy * speed;
+    const vstickSpeed = 3.0;
+    player.x += vstick.dx * vstickSpeed;
+    player.y += vstick.dy * vstickSpeed;
     mouseX = player.x; mouseY = player.y;
   } else if(usingKeyboard) {
     const diag = (up || down) && (left || right) ? speed / Math.SQRT2 : speed;
@@ -1312,6 +1322,7 @@ function goHome() {
   document.getElementById('boss-bar-wrap').style.display = 'none';
   document.getElementById('phase-label').style.display = 'none';
   document.getElementById('game-start-screen').style.display = 'none';
+  document.getElementById('settings-and-start-screen').style.display = 'none';
   document.getElementById('stats-screen').style.display = 'none';
   document.getElementById('device-select-screen').style.display = 'flex'; 
   document.getElementById('overlay').style.display = 'flex';
@@ -1518,25 +1529,38 @@ function loop() {
 }
 
 // ===== イベント =====
-// デバイス選択ボタン
+
 document.getElementById('select-pc-btn').addEventListener('click', () => {
   setDeviceMode('pc');
-  showGameStartScreen('PC版');
+  showSettingsScreen('PC版');
 });
 
 document.getElementById('select-mobile-btn').addEventListener('click', () => {
   setDeviceMode('mobile');
-  showGameStartScreen('モバイル版');
+  showSettingsScreen('モバイル版');
 });
+
+function showSettingsScreen(modeLabel) {
+  document.getElementById('device-select-screen').style.display = 'none';
+  document.getElementById('settings-and-start-screen').style.display = 'flex';
+  document.getElementById('game-start-text').textContent = 
+    `${modeLabel} で開始するよ！`;
+}
+
+document.getElementById('proceed-to-chara-btn').addEventListener('click', () => {
+  document.getElementById('settings-and-start-screen').style.display = 'none';
+  document.getElementById('game-start-screen').style.display = 'flex';
+});
+
+document.getElementById('start-btn').onclick = initGame;
 
 function showGameStartScreen(modeLabel) {
   document.getElementById('device-select-screen').style.display = 'none';
-  document.getElementById('stats-screen').style.display = 'none';
   document.getElementById('game-start-screen').style.display = 'flex';
   document.getElementById('game-start-text').textContent = 
     `${modeLabel} で開始するよ！`;
-  document.getElementById('start-btn').onclick = initGame;
 }
+
 canvas.addEventListener('mousemove', e => {
   let r = canvas.getBoundingClientRect();
   const scaleX = gameW / r.width;
@@ -1585,10 +1609,14 @@ bgm.volume = 0.5;
 document.getElementById('vol-slider').addEventListener('input', e => {
   bgm.volume = parseFloat(e.target.value);
 });
-document.getElementById('stats-btn').addEventListener('click', showStatsScreen);
+document.getElementById('stats-btn').addEventListener('click', () => {
+  document.getElementById('settings-and-start-screen').style.display = 'none';
+  showStatsScreen();
+});
+
 document.getElementById('back-from-stats-btn').addEventListener('click', () => {
   document.getElementById('stats-screen').style.display = 'none';
-  document.getElementById('device-select-screen').style.display = 'block';
+  document.getElementById('settings-and-start-screen').style.display = 'flex';
 });
 
 const infoContents = {
@@ -1606,11 +1634,11 @@ const infoContents = {
   },
   credits: {
     title: 'クレジット',
-    content: 'ぽぽりんイラスト:なすび。 様\n\nぽぽりんドット：おんJ民 様\n\nBGM：準備中\n\nロゴ製作者様：なのメートル 様\n\nぽぽりん公式サイト:\n準備中'
+    content: 'ぽぽりんイラスト:なすび。 様\n\nぽぽりんドット：おんJ民 様\n\nBGM：準備中\n\nロゴ製作者様：なのメートル 様\n\nぽぽりん公式サイト:\nhttps://poporin.net/'
   },
   Links: {
     title: 'リンク集',
-    content: '連絡先：\nhttps://karotter.com/profile/DA\n\nポポと岐阜公式アカウント：\nhttps://karotter.com/profile/popotogihu\n\nぽぽりん公式アカウント：\nhttps://karotter.com/profile/popo_rin\n\nぽぽりん公式サイト:\n準備中'
+    content: '連絡先：\nhttps://karotter.com/profile/DA\n\nポポと岐阜公式アカウント：\nhttps://karotter.com/profile/popotogihu\n\nぽぽりん公式アカウント：\nhttps://karotter.com/profile/popo_rin\n\nぽぽりん公式サイト:\nhttps://poporin.net/'
   }
 };
 

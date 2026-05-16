@@ -6,6 +6,12 @@
 <title>ぽぽりんの弾幕避け</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   background-image: url('背景画像.png');
   background-size: cover;
@@ -19,9 +25,15 @@ body {
   min-height: 100vh;
   font-family: system-ui, sans-serif;
   color: #ccc;
+  width: 100%;
+  overflow-x: hidden;
 }
 
-/* レスポンシブ対応の強化 */
+body.mobile-mode {
+  align-items: flex-start;
+  overflow: hidden;
+}
+
 @media (max-width: 600px) {
   body {
     padding: 0;
@@ -29,25 +41,25 @@ body {
   }
   
   #game-wrap {
-    width: 100vw;
+    width: 100%; 
     padding: 0;
   }
   
   #canvas-container {
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     aspect-ratio: auto !important;
     border-radius: 0;
   }
   
   #ui-bar {
-    max-width: 100vw;
+    max-width: 100%;
     font-size: 12px;
     padding: 8px;
   }
   
   #item-stock-bar {
-    max-width: 100vw;
+    max-width: 100%;
     gap: 4px;
     min-height: 48px;
   }
@@ -90,44 +102,67 @@ body {
   background-attachment: fixed;
 }
 
-/* ===== デバイスモード分岐 ===== */
 :root {
   --game-width: 600px;
   --game-height: 560px;
 }
 
-/* スマホモード */
 body.mobile-mode #canvas-container {
-  width: 100vw;
+  width: min(360px, 90vw);
   height: auto;
-  aspect-ratio: 9 / 10.5;
-  max-width: 100%;
+  aspect-ratio: 360 / 630;
   border-radius: 0;
 }
 
 @media (orientation: landscape) {
   body.mobile-mode #canvas-container {
-    width: auto;
-    height: 100vh;
-    aspect-ratio: 10.5 / 9; 
+    width: min(348px, 90vh * 1.25);
+    height: auto;
+    aspect-ratio: 348/ 330;
+  }
+}
+
+@media (max-width: 350px) {
+  body.mobile-mode #canvas-container {
+    width: 100vw;
+    aspect-ratio: 348/ 330;
   }
 }
 
 body.mobile-mode #game-wrap {
-  width: 100vw;
+  width: 100%;
   padding: 0;
+  margin: 0;
+  overflow: hidden;
 }
 
 body.mobile-mode #ui-bar {
   max-width: 100vw;
   font-size: 11px;
 }
-
-body.mobile-mode #item-stock-bar {
-  max-width: 100vw;
+body.pc-mode #ui-bar-mobile {
+  display: none;
 }
 
-/* PCモード（デフォルト） */
+#ui-bar-mobile {
+  display: none; 
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: #000000;
+  justify-content: space-between;
+  align-items: center;
+}
+
+body.mobile-mode #ui-bar-mobile {
+  display: flex;
+}
+
+body.mobile-mode #item-stock-bar {
+  width: 100%;
+  max-width: 100%;
+}
+
 body.pc-mode #canvas-container {
   width: 600px;
   height: 560px;
@@ -141,16 +176,125 @@ body.pc-mode #game-wrap {
 
 
 canvas { display: block; }
+
 #ui-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   width: 100%;
-  max-width: 600px;
+  display: flex;
   padding: 0.5rem 0;
   font-size: 13px;
   color: #888;
 }
+
+body.hide-ui #ui-bar {
+  display: none !important;
+}
+body.hide-ui #item-stock-bar {
+  display: none !important;
+}
+
+body.pc-mode #ui-bar {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 600px;
+  gap: 16px;
+  padding: 0.5rem 0;
+}
+
+body.mobile-mode #ui-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0; 
+  overflow: visible;
+  padding: 0;
+}
+
+.ui-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+body.pc-mode #ui-lives {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+}
+
+body.mobile-mode #ui-lives {
+  position: fixed;
+  top: 8px;
+  left: 12px;
+  z-index: 100;
+}
+
+.life-icon {
+  width: 10px;
+  height: 10px;
+  background: #e87ad4;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+body.pc-mode #ui-score {
+  flex-direction: column;
+}
+
+body.mobile-mode #ui-score {
+  position: fixed;
+  top: 16px;
+  left: 80px;
+  z-index: 100;
+}
+
+#ui-score .ui-label {
+  font-size: 11px;
+  color: #000000;
+  font-weight: 400;
+}
+
+#ui-score .ui-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #000000;
+}
+
+body.pc-mode #ui-graze {
+  flex-direction: column;
+}
+body.mobile-mode #ui-graze {
+  position: fixed;
+  top: 72px;
+  left: 80px;
+  z-index: 100;
+}
+
+body.mobile-mode #ui-time,
+body.mobile-mode #ui-time {
+  position: fixed;
+  top: 128px;
+  left: 80px;
+  z-index: 100;
+}
+
+.ui-stat-item .ui-label {
+  font-size: 11px;
+  color: #000000;
+}
+
+.ui-stat-item .ui-value {
+  font-size: 12px;
+  font-weight: 500;
+  color: #000000;
+}
+
+#ui-graze .ui-value { color: #7e5200; }
+#ui-time .ui-value { color: #00566e; }
+
 #lives-display { display: flex; gap: 4px; align-items: center; }
 .life-icon {
   width: 10px; height: 10px;
@@ -168,6 +312,45 @@ canvas { display: block; }
   text-align: center;
   z-index: 20;
 }
+
+#device-select-screen {
+  width: 90%;
+  max-width: 500px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+#device-select-screen h2 {
+  font-size: clamp(20px, 5vw, 28px);
+  margin: 0;
+}
+
+#device-select-screen p {
+  font-size: clamp(12px, 3vw, 14px);
+  margin: 0;
+}
+
+#device-select-screen > div {
+  display: flex;
+  gap: clamp(8px, 3vw, 16px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#device-select-screen button {
+  padding: clamp(10px 20px, 2vw, 14px 28px);
+  font-size: clamp(12px, 3vw, 15px);
+  white-space: nowrap;
+}
+
+#device-select-screen > p:last-of-type {
+  font-size: clamp(11px, 2.5vw, 13px);
+  margin-top: 12px;
+}
+
 #overlay h2 { font-size: 20px; font-weight: 500; letter-spacing: 0.05em; }
 #overlay p { font-size: 13px; color: #aab; line-height: 1.8; }
 #start-btn {
@@ -189,42 +372,13 @@ canvas { display: block; }
   letter-spacing: 0.08em;
   pointer-events: none;
 }
-#boss-bar-wrap {
-  position: absolute; top: 8px; left: 8px; right: 8px; height: 4px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 2px;
-  overflow: hidden;
-}
-#boss-bar-wrap {
-  position: absolute; top: 8px; left: 8px; right: 8px; height: 4px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 2px;
-  overflow: hidden;
-}
 
-@media (orientation: landscape) {
-  body.mobile-mode #boss-bar-wrap {
-    left: 100px;   
-    right: 160px;  
-    top: 12px;
-    height: 5px;
-  }
-  
-  body.mobile-mode #phase-label {
-    top: 22px;
-    font-size: 13px;
-    letter-spacing: 0.1em;
-  }
-}
-}
-#boss-bar { height: 100%; background: #e87ad4; transition: width 0.2s; border-radius: 2px; }
 #graze-label {
   position: absolute; bottom: 10px; right: 10px;
   font-size: 11px; color: rgba(255,220,180,0.8);
   letter-spacing: 0.06em;
 }
 
-/* ===== アイテムストックUI ===== */
 #item-stock-bar {
   display: flex;
   gap: 6px;
@@ -274,7 +428,6 @@ canvas { display: block; }
   white-space: nowrap;
 }
 
-/* アクティブ効果インジケーター */
 #effect-display {
   position: absolute;
   bottom: 32px; left: 8px;
@@ -299,7 +452,6 @@ canvas { display: block; }
 }
 @keyframes badgePulse { from { opacity: 0.8; } to { opacity: 1; } }
 
-/* ===== 統計画面 ===== */
 #stats-screen { display:none; flex-direction:column; align-items:center; gap:10px; }
 .stats-row {
   display:flex; justify-content:space-between;
@@ -338,8 +490,7 @@ canvas { display: block; }
   text-align: center;
   letter-spacing: 0.04em;
 }
- 
-/* キャラクター選択セクションをまとめる */
+
 .chara-select-section {
   display: flex;
   flex-direction: column;
@@ -355,7 +506,6 @@ canvas { display: block; }
   letter-spacing: 0.04em;
 }
  
-/* キャラクターボタンのコンテナ */
 #chara-buttons-container {
   display: flex;
   gap: 16px; 
@@ -366,7 +516,6 @@ canvas { display: block; }
   padding: 0 12px;
 }
  
-/* ゲーム開始ボタン */
 #game-start-screen #start-btn {
   margin-top: 12px;
   padding: 12px 48px;
@@ -375,7 +524,6 @@ canvas { display: block; }
   letter-spacing: 0.05em;
 }
 
-/* ロゴ系 */
 body.pc-mode #logo-container {
   position: fixed;
   top: 12px;
@@ -385,12 +533,10 @@ body.pc-mode #logo-container {
   pointer-events: auto;
 }
 
-/* ロゴ系2 */
 body.mobile-mode #logo-container {
   display: none;
 }
 
-/* ===== 仮想スティック ===== */
 #vstick-zone {
   display: none;
   position: fixed;
@@ -418,8 +564,8 @@ body.mobile-mode #vstick-zone {
   position: absolute;
   width: 80px; height: 80px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.06);
-  border: 1.5px solid rgba(255,255,255,0.18);
+  background: rgb(160, 160, 160);
+  border: 5.5px solid rgb(56, 56, 56);
   left: 16px; bottom: 16px;
   pointer-events: auto;
   touch-action: none;
@@ -445,8 +591,8 @@ body.mobile-mode #vstick-zone {
   position: absolute;
   width: 34px; height: 34px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.28);
-  border: 1.5px solid rgba(255,255,255,0.5);
+  background: rgba(87, 87, 87, 0.192);
+  border: 2.5px solid rgb(24, 24, 24);
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -462,62 +608,40 @@ body.mobile-mode #vstick-zone {
   }
 }
 
-
 #item-overlay-bar {
   display: none;
-  position: absolute;
-  right: 6px; top: 28px;
+  position: fixed;
+  right: 6px;
+  top: 28px;
   flex-direction: column;
   gap: 5px;
   z-index: 12;
   pointer-events: auto;
 }
-body.mobile-mode #item-overlay-bar {
 
-  display: flex;
-  flex-direction: row;
-  right: 6px; bottom: 6px; top: auto;
-}
-@media (orientation: landscape) {
 body.mobile-mode #item-overlay-bar {
   display: flex;
+  position: fixed;  
   flex-direction: row;
-  right: 6px; bottom: 6px; top: auto;
-  }
+  left: 50%;  
+  transform: translateX(-50%); 
+  bottom: auto;
+  top: auto;
+  width: auto;
+  max-width: 200px;
+  gap: 10px;
+  z-index: 15;
+  pointer-events: auto;
+  margin-top: 0;
 }
 
 @media (orientation: landscape) {
   body.mobile-mode #item-overlay-bar {
-    flex-direction: column;
-    left: 20px;
-    right: auto;
-    top: 50%;
-    transform: translateY(-50%);
-    bottom: auto;
-    gap: 10px;
-  }
-} 
-
-.item-ov-btn {
-  width: 36px; height: 36px;
-  border-radius: 8px;
-  border: 1.5px solid rgba(255,255,255,0.2);
-  background: rgba(2,6,21,0.7);
-  font-size: 17px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  color: white;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-
-@media (orientation: landscape) {
-  body.mobile-mode .item-ov-btn {
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
+    position: fixed;
+    top: 214px;
+    left: 125px;
+    z-index: 100;
+    pointer-events: auto;
   }
 }
 
@@ -545,46 +669,32 @@ body.mobile-mode #item-overlay-bar {
 </style>
 </head>
 <body>
-  <div id="footer-buttons" style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap;padding:0 12px">
-  <button onclick="showInfoPanel('howToPlay')" style="padding:8px 16px;font-size:12px;cursor:pointer;border:0.5px solid #7ad4e8;background:rgba(122,212,232,0.15);color:#000000;border-radius:8px;transition:all 0.2s">
-    📖 遊び方
-  </button>
-  <button onclick="showInfoPanel('aboutItems')" style="padding:8px 16px;font-size:12px;cursor:pointer;border:0.5px solid #e87ad4;background:rgba(232,122,212,0.15);color:#000000;border-radius:8px;transition:all 0.2s">
-    💝 アイテム説明
-  </button>
-  <button onclick="showInfoPanel('thanks')" style="padding:8px 16px;font-size:12px;cursor:pointer;border:0.5px solid #f4c875;background:rgba(244,200,117,0.15);color:#000000;border-radius:8px;transition:all 0.2s">
-    🙏 サンクス
-  </button>
-  <button onclick="showInfoPanel('credits')" style="padding:8px 16px;font-size:12px;cursor:pointer;border:0.5px solid #aaa;background:rgba(150,150,150,0.15);color:#000000;border-radius:8px;transition:all 0.2s">
-    🎬 クレジット
-  </button>
-  <button onclick="showInfoPanel('Links')" style="padding:8px 16px;font-size:12px;cursor:pointer;border:0.5px solid #7ae880;background:rgba(122, 232, 155, 0.15);color:#000000;border-radius:8px;transition:all 0.2s">
-    🔗 リンク集
-  </button>
-</div>
   <div id="logo-container" style="position:fixed;top:12px;left:12px;z-index:50">
     <img id="logo-img" src="ロゴ.png" alt="ロゴ" style="width: 340px;height: auto;display:block;">
   </div>
-  <div id="info-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:100;flex-direction:column;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#1a0a2a;border:1px solid rgba(200,160,255,0.6);border-radius:12px;padding:30px;max-width:500px;max-height:80vh;overflow-y:auto;color:#ccc">
-    <h2 id="info-title" style="font-size:20px;color:#e87ad4;margin-bottom:16px;text-align:center;letter-spacing:0.05em"></h2>
-    <p id="info-content" style="font-size:14px;line-height:1.8;color:#aab;white-space:pre-wrap;margin-bottom:20px"></p>
-    <button id="close-info-btn" style="width:100%;padding:10px;font-size:13px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;transition:background 0.15s">
-      閉じる
-    </button>
+  
+<div id="game-wrap">
+<!-- UIバー-->
+<div id="ui-bar">
+  <div id="ui-lives" class="ui-stat-item">
+    <span id="ui-lives-icon-0" class="life-icon"></span>
+    <span id="ui-lives-icon-1" class="life-icon"></span>
+    <span id="ui-lives-icon-2" class="life-icon"></span>
+  </div>
+  <div id="ui-score" class="ui-stat-item">
+    <span class="ui-label">SCORE</span>
+    <span id="ui-score-val" class="ui-value">0</span>
+  </div>
+  <div id="ui-graze" class="ui-stat-item">
+    <span class="ui-label">かすり</span>
+    <span id="ui-graze-val" class="ui-value">0</span>
+  </div>
+  <div id="ui-time" class="ui-stat-item">
+    <span class="ui-label">時間</span>
+    <span id="ui-time-val" class="ui-value">00:00</span>
   </div>
 </div>
-<div id="game-wrap">
-<div id="ui-bar">
-  <div id="lives-display">
-  <span class="life-icon" id="l0"></span>
-  <span class="life-icon" id="l1"></span>
-  <span class="life-icon" id="l2"></span>
-</div>
-  <div id="score-display">SCORE <span id="score-val">0</span></div>
-  <div style="font-size:12px;color:#000000">かすり <span id="graze-val" style="color:#7e5200">0</span></div>
-  <div style="font-size:12px;color:#000000">時間 <span id="time-val" style="color:#00566e">00:00</span></div>
-</div>
+
   <!-- アイテムストックUI -->
   <div id="item-stock-bar">
     <div class="item-slot">
@@ -603,21 +713,30 @@ body.mobile-mode #item-overlay-bar {
 
   <div id="canvas-container">
     <canvas id="gc" width="600" height="560"></canvas>
-    <div id="boss-bar-wrap"><div id="boss-bar" style="width:100%"></div></div>
-      <div id="item-overlay-bar">
-      <button class="item-ov-btn empty" id="item-ov-0" onclick="useItem(0)">—</button>
-      <button class="item-ov-btn empty" id="item-ov-1" onclick="useItem(1)">—</button>
-      <button class="item-ov-btn empty" id="item-ov-2" onclick="useItem(2)">—</button>
-    </div>
+    <div id="info-panel" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:100;flex-direction:column;align-items:center;justify-content:center;padding:20px">
+  
+      <div style="background:#1a0a2a;border:1px solid rgba(200,160,255,0.6);border-radius:12px;padding:30px;max-width:500px;max-height:80%;overflow-y:auto;color:#ccc">
+    <h2 id="info-title" style="font-size:20px;color:#e87ad4;margin-bottom:16px;text-align:center;letter-spacing:0.05em"></h2>
+    <p id="info-content" style="font-size:14px;line-height:1.8;color:#aab;white-space:pre-wrap;margin-bottom:20px"></p>
+    <button id="close-info-btn" style="width:100%;padding:10px;font-size:13px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;transition:background 0.15s">
+      閉じる
+    </button>
+  </div>
+</div>
 
-    <!-- 仮想スティック（モバイル用） -->
-    <div id="gameover-overlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;flex-direction:column;align-items:center;justify-content:center;color:white;gap:12px;text-align:center;z-index:25;background:rgba(0,0,0,0.6)"></div>
-    <div id="effect-display" style="position:absolute;bottom:32px;left:8px;display:flex;flex-direction:column;gap:3px;pointer-events:none"></div>
-    <div id="vstick-zone">
-      <div id="vstick-base">
-        <div id="vstick-knob"></div>
-      </div>
+  <div id="gameover-overlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;flex-direction:column;align-items:center;justify-content:center;color:rgb(255, 255, 255);gap:12px;text-align:center;z-index:25;background:rgba(0,0,0,0.6)"></div>
+  <div id="effect-display" style="position:absolute;bottom:32px;left:8px;display:flex;flex-direction:column;gap:3px;pointer-events:none"></div>
+  <div id="vstick-zone">
+    <div id="vstick-base">
+      <div id="vstick-knob"></div>
     </div>
+  </div>  
+
+<div id="item-overlay-bar">
+  <button class="item-ov-btn empty" id="item-ov-0" onclick="useItem(0)">—</button>
+  <button class="item-ov-btn empty" id="item-ov-1" onclick="useItem(1)">—</button>
+  <button class="item-ov-btn empty" id="item-ov-2" onclick="useItem(2)">—</button>
+</div>
 
     <div id="phase-label" style="display:none"></div>
 <div id="overlay" style="display:flex">
@@ -631,7 +750,7 @@ body.mobile-mode #item-overlay-bar {
         💻 PC版
       </button>
       <button id="select-mobile-btn" style="padding:12px 24px;font-size:14px;cursor:pointer;border:1.5px solid #e87ad4;background:rgba(232,122,212,0.15);color:#e87ad4;border-radius:8px;letter-spacing:0.05em;transition:all 0.2s;font-weight:500">
-        📱 モバイル版（試験的）
+        📱 モバイル版（横画面推奨）
       </button>
     </div>
 
@@ -654,6 +773,23 @@ body.mobile-mode #item-overlay-bar {
     <button id="proceed-to-chara-btn" style="padding:12px 48px;font-size:15px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;letter-spacing:0.04em;transition:background 0.15s;font-weight:500">
       次へ（キャラ選択）
     </button>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px;padding:0 12px">
+    <button onclick="showInfoPanel('howToPlay')" style="padding:8px 14px;font-size:12px;cursor:pointer;border:0.5px solid #7ad4e8;background:rgba(122,212,232,0.15);color:#7ad4e8;border-radius:8px;transition:all 0.2s">
+      📖 遊び方
+    </button>
+    <button onclick="showInfoPanel('aboutItems')" style="padding:8px 14px;font-size:12px;cursor:pointer;border:0.5px solid #e87ad4;background:rgba(232,122,212,0.15);color:#e87ad4;border-radius:8px;transition:all 0.2s">
+      💝 アイテム説明
+    </button>
+    <button onclick="showInfoPanel('thanks')" style="padding:8px 14px;font-size:12px;cursor:pointer;border:0.5px solid #f4c875;background:rgba(244,200,117,0.15);color:#f4c875;border-radius:8px;transition:all 0.2s">
+      🙏 サンクス
+    </button>
+    <button onclick="showInfoPanel('credits')" style="padding:8px 14px;font-size:12px;cursor:pointer;border:0.5px solid #aaa;background:rgba(150,150,150,0.15);color:#aaa;border-radius:8px;transition:all 0.2s">
+      🎬 クレジット
+    </button>
+    <button onclick="showInfoPanel('Links')" style="padding:8px 14px;font-size:12px;cursor:pointer;border:0.5px solid #7ae880;background:rgba(122,232,155,0.15);color:#7ae880;border-radius:8px;transition:all 0.2s">
+      🔗 リンク集
+    </button>
+  </div>
   </div>
 
   <div id="game-start-screen" style="display:none">
@@ -693,11 +829,11 @@ body.mobile-mode #item-overlay-bar {
   </div>
 </div>
 
-<audio id="bgm" src= "data:audio/mpeg;base64,as==" loop></audio>
+<audio id="bgm-menu" src="森の声.mp3" loop></audio>
+<audio id="bgm-game" src="game.mp3" loop></audio>
 
 <script>
 
-  // ===== ローカルストレージ 統計 =====
 const STATS_KEY = 'poporin_stats';
 
 function loadStats() {
@@ -749,8 +885,7 @@ function showStatsScreen() {
   document.getElementById('stats-screen').style.display = 'flex';
 }
 
-  // ===== デバイスモード管理 =====
-let deviceMode = null;  // 'pc' または 'mobile'
+let deviceMode = null; 
 let CANVAS_WIDTH = 600;
 let CANVAS_HEIGHT = 560;
 
@@ -776,42 +911,39 @@ function setDeviceMode(mode) {
   console.log(`Mode: ${mode} | Canvas: ${gameW}x${gameH}`);
 }
 
+let mobileCanvasFixed = false;
+
 function updateMobileCanvasSize() {
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const aspectRatio = 560 / 600;  
+  const isPortrait = window.innerWidth < window.innerHeight;
   
-  if(vw < vh) {
-
-    gameW = vw;
-    gameH = vw * aspectRatio;
+  if(isPortrait) {
+    gameW = 360;
+    gameH = 630;
   } else {
-
-    gameH = vh;
-    gameW = vh / aspectRatio;
+    gameW = 348;
+    gameH = 330;
   }
   
   canvas.width = gameW;
   canvas.height = gameH;
-  
-  if(vw > vh) {
-    stars = [];
-    for(let i = 0; i < 120; i++) {
-      stars.push({ 
-        x: Math.random()*gameW, 
-        y: Math.random()*gameH, 
-        s: Math.random()*1.5+0.3, 
-        sp: Math.random()*0.4+0.1 
-      });
-    }
+
+  stars = [];
+  for(let i = 0; i < 120; i++) {
+    stars.push({ 
+      x: Math.random()*gameW, 
+      y: Math.random()*gameH, 
+      s: Math.random()*1.5+0.3, 
+      sp: Math.random()*0.4+0.1 
+    });
   }
 }
 
 const canvas = document.getElementById('gc');
 const ctx = canvas.getContext('2d');
-const bgm = document.getElementById('bgm');
-let gameW = 600;  // ゲーム世界の幅（デバイス選択時に更新）
-let gameH = 560;  // ゲーム世界の高さ（デバイス選択時に更新）
+const bgmMenu = document.getElementById('bgm-menu');
+const bgmGame = document.getElementById('bgm-game');
+let gameW = 600;
+let gameH = 560; 
 
 let state = 'idle';
 let player, bullets, score, graze, lives, frame, phaseTimer, phase, bossHP, bossMaxHP;
@@ -819,11 +951,14 @@ let gameTime = 0;
 let bossX, bossY, bossVX, bossColor, bossPattern;
 let invincible = 0, deathFlash = 0;
 let mouseX = gameW/2, mouseY = gameH - 80;
-let shift = false;
 const keys = {};
+
+function getDifficulty() {
+return Math.min(1.0 + (gameTime / 18000) * 2.0, 5.0);
+}
+
 let stars = [];
 
-// ===== アイテム定義 =====
 const ITEM_DEFS = {
   invincible: { emoji: '💛', label: '無敵5秒',   color: '#f4c875', duration: 300 },
   hitReduce:  { emoji: '💙', label: '判定縮小8秒', color: '#7ad4e8', duration: 600 },
@@ -831,12 +966,9 @@ const ITEM_DEFS = {
   clearBullet:{ emoji: '💜', label: '弾消去',     color: '#c87ae8', duration: 0   },
 };
 
-// アイテムドロップ (画面上を流れるアイテム)
 let dropItems = [];
-// アイテムストック [スロット0〜2]
 let itemStock = [null, null, null];
-// アクティブ効果
-let activeEffects = {}; // { type: remainingFrames }
+let activeEffects = {};
 
 let itemSpawnTimer = 0;
 const ITEM_SPAWN_INTERVAL = 600;
@@ -882,9 +1014,17 @@ function selectChara(index) {
 }
 
 function initGame() {
-  bgm.currentTime = 0;
-  bgm.play();
+  if(deviceMode === 'mobile') {
+    mobileCanvasFixed = false;
+    updateMobileCanvasSize();
+  }
+
+  bgmMenu.pause();
+  bgmMenu.currentTime = 0;
+  bgmGame.currentTime = 0;
+  bgmGame.play();
   player = { x: gameW/2, y: gameH - 80, r: 4, hitR: 4 };
+
   bullets = [];
   dropItems = [];
   itemStock = [null, null, null];
@@ -898,33 +1038,57 @@ function initGame() {
   itemSpawnTimer = 0;
   bossPattern = patterns[0];
   bossColor = bossPattern.color;
-document.getElementById('overlay').style.display = 'none';
+  document.body.classList.remove('hide-ui');
+  document.getElementById('overlay').style.display = 'none';
   document.getElementById('gameover-overlay').style.display = 'none';
-  document.getElementById('boss-bar-wrap').style.display = 'block';
   updateUI();
   updateItemStockUI();
   updateItemOverlayUI()
   updateEffectDisplay();
   
-  // グローバル定数を更新（ボス・プレイヤー初期位置など）
   state = 'play';
 }
 
-// ===== アイテム取得・発動 =====
 function addToStock(type) {
   for(let i = 0; i < 3; i++) {
     if(itemStock[i] === null) {
       itemStock[i] = type;
       updateItemStockUI();
+      updateItemOverlayUI();
       showPickupFlash(ITEM_DEFS[type]);
       return;
     }
   }
-  // 満杯ならスコアに変換
   score += 1000;
 }
 
 function useItem(slotIndex) {
+  for(let i = 0; i < 3; i++) {
+  const btn = document.getElementById('item-btn-' + i);
+  const ovBtn = document.getElementById('item-ov-' + i);
+  
+  if(btn) {
+    btn.addEventListener('touchstart', e => {
+      e.stopPropagation();  // タッチイベントの伝播を止める
+    }, { passive: false });
+    btn.addEventListener('touchend', e => {
+      e.stopPropagation();
+      e.preventDefault();
+      useItem(i);
+    }, { passive: false });
+  }
+  
+  if(ovBtn) {
+    ovBtn.addEventListener('touchstart', e => {
+      e.stopPropagation();
+    }, { passive: false });
+    ovBtn.addEventListener('touchend', e => {
+      e.stopPropagation();
+      e.preventDefault();
+      useItem(i);
+    }, { passive: false });
+  }
+}
   if(state !== 'play') return;
   const type = itemStock[slotIndex];
   if(!type) return;
@@ -933,16 +1097,15 @@ function useItem(slotIndex) {
   itemStock[slotIndex] = null;
 
   if(type === 'clearBullet') {
-    // 即時弾消去＋スコアボーナス
     score += bullets.length * 50;
     bullets = [];
     spawnClearEffect();
   } else {
-    // 効果を付与（重複は延長）
     activeEffects[type] = (activeEffects[type] || 0) + def.duration;
   }
 
   updateItemStockUI();
+  updateItemOverlayUI();
   updateEffectDisplay();
 }
 
@@ -968,7 +1131,6 @@ function updateItemStockUI() {
       lbl.style.color = 'rgba(255,255,255,0.3)';
     }
   }
-  updateItemOverlayUI();
 }
 
 function updateItemOverlayUI() {
@@ -981,10 +1143,12 @@ function updateItemOverlayUI() {
       btn.textContent = def.emoji;
       btn.className = 'item-ov-btn active';
       btn.style.borderColor = def.color + 'aa';
+      btn.onclick = () => useItem(i);
     } else {
       btn.textContent = '—';
       btn.className = 'item-ov-btn empty';
       btn.style.borderColor = '';
+      btn.onclick = null;
     }
   }
 }
@@ -1005,17 +1169,14 @@ function updateEffectDisplay() {
   }
 }
 
-// 弾消去エフェクト用
 let clearEffectTimer = 0;
 function spawnClearEffect() { clearEffectTimer = 40; }
 
-// 取得フラッシュ用
 let pickupFlash = null;
 function showPickupFlash(def) {
   pickupFlash = { emoji: def.emoji, color: def.color, timer: 60 };
 }
 
-// ===== アイテムドロップスポーン =====
 function spawnDropItem() {
   const type = itemTypes[Math.floor(Math.random() * itemTypes.length)];
   const def = ITEM_DEFS[type];
@@ -1028,12 +1189,13 @@ function spawnDropItem() {
   });
 }
 
-// ===== ボスパターン =====
 function spreadShot() {
-  if(frame % 20 === 0) {
+  const d = getDifficulty();
+  const interval = Math.max(8, Math.floor(20 / d));
+  if(frame % interval === 0) {
     for(let a = -40; a <= 40; a += 8) {
       let rad = (90 + a) * Math.PI / 180;
-      bullets.push({ x: bossX, y: bossY+30, vx: Math.cos(rad)*2.8, vy: Math.sin(rad)*2.8, r: 5, color: bossColor, });
+      bullets.push({ x: bossX, y: bossY+30, vx: Math.cos(rad)*(2.8*d), vy: Math.sin(rad)*(2.8*d), r: 5, color: bossColor, });
     }
   }
   if(frame % 60 === 0) {
@@ -1045,70 +1207,83 @@ function spreadShot() {
 }
 
 function ringBurst() {
-  if(frame % 30 === 0) {
-    let n = 16 + (phase*4);
+  const d = getDifficulty();
+  const interval = Math.max(12, Math.floor(30 / d));
+  if(frame % interval === 0) {
+    let n = Math.floor((16 + (phase*4)) * Math.min(d, 2.0));
     for(let i = 0; i < n; i++) {
       let a = (i/n)*Math.PI*2 + frame*0.02;
-      let sp = 2.2 + (phase*0.3);
-      bullets.push({ x: bossX, y: bossY+30, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp, r: 4, color: bossColor, 　 });
+      let sp = (2.2 + (phase*0.3)) * d;
+      bullets.push({ x: bossX, y: bossY+30, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp, r: 4, color: bossColor, });
     }
   }
 }
 
 function spiralShot() {
+  const d = getDifficulty();
   if(frame % 4 === 0) {
-    let a = frame * 0.12;
-    bullets.push({ x: bossX, y: bossY+30, vx: Math.cos(a)*2.5, vy: Math.sin(a)*2.5, r: 5, color: bossColor});
-    bullets.push({ x: bossX, y: bossY+30, vx: Math.cos(a+Math.PI)*2.5, vy: Math.sin(a+Math.PI)*2.5, r: 5, color: '#f4c875'});
+    let a = frame * (0.12 * Math.min(d, 1.8)); 
+    let sp = 2.5 * d;
+    bullets.push({ x: bossX, y: bossY+30, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp, r: 5, color: bossColor});
+    bullets.push({ x: bossX, y: bossY+30, vx: Math.cos(a+Math.PI)*sp, vy: Math.sin(a+Math.PI)*sp, r: 5, color: '#f4c875'});
   }
-  if(frame % 50 === 0) {
+  const aimInterval = Math.max(20, Math.floor(50 / d));
+  if(frame % aimInterval === 0) {
     let dx = player.x - bossX, dy = player.y - bossY;
     let len = Math.sqrt(dx*dx+dy*dy);
-    bullets.push({ x: bossX, y: bossY+30, vx: dx/len*3.5, vy: dy/len*3.5, r: 6, color: '#fff',aimed: true });
+    bullets.push({ x: bossX, y: bossY+30, vx: dx/len*(3.5*d), vy: dy/len*(3.5*d), r: 6, color: '#fff',aimed: true });
   }
 }
 
 function aimedBarrage() {
-  if(frame % 12 === 0) {
+  const d = getDifficulty();
+  const interval = Math.max(5, Math.floor(12 / d));
+  if(frame % interval === 0) {
     let dx = player.x - bossX, dy = player.y - bossY;
     let len = Math.sqrt(dx*dx+dy*dy);
     let spread = 0.25;
     for(let i = -2; i <= 2; i++) {
       let angle = Math.atan2(dy, dx) + i * spread;
-      let sp = 2.5 + Math.abs(i)*0.2;
+      let sp = (2.5 + Math.abs(i)*0.2) * d;
       bullets.push({ x: bossX, y: bossY+30, vx: Math.cos(angle)*sp, vy: Math.sin(angle)*sp, r: 5, color: bossColor});
     }
   }
 }
 
 function laserCurtain() {
-  if(frame % 6 === 0) {
+  const d = getDifficulty();
+  const interval = Math.max(3, Math.floor(6 / d));
+  if(frame % interval === 0) {
     let offset = Math.sin(frame*0.04)*120;
-    let cols = 7 + phase;
+    let cols = Math.floor((7 + phase) * Math.min(d, 1.8));
     for(let i = 0; i < cols; i++) {
       let x = (gameW/(cols))*i + gameW/(cols*2) + offset*0.3;
-      bullets.push({ x, y: bossY+30, vx: 0, vy: 2.8+phase*0.4, r: 6, color: bossColor});
+      bullets.push({ x, y: bossY+30, vx: 0, vy: (2.8+phase*0.4)*d, r: 6, color: bossColor});
     }
   }
+  }
+
   if(frame % 40 === 0) {
     for(let i = 0; i < 20; i++) {
       let a = (i/20)*Math.PI*2;
       bullets.push({ x: bossX, y: bossY+30, vx: Math.cos(a)*3, vy: Math.sin(a)*3, r: 4, color: '#fff', type: 'o', glow: true });
     }
   }
-}
 
 function doubleHelix() {
-  if(frame % 5 === 0) {
+  const d = getDifficulty();
+  const interval = Math.max(2, Math.floor(5 / d));
+  if(frame % interval === 0) {
     let a1 = frame * 0.08;
     let a2 = frame * 0.08 + Math.PI;
-    let sp = 2.4;
+    let sp = 2.4 * d;
     bullets.push({ x: bossX, y: bossY+30, vx: Math.cos(a1)*sp, vy: Math.sin(a1)*sp, r: 5, color: bossColor});
     bullets.push({ x: bossX, y: bossY+30, vx: Math.cos(a2)*sp, vy: Math.sin(a2)*sp, r: 5, color: '#7ad4e8'});
-    if(frame % 20 === 0) {
+    const aimInterval = Math.max(8, Math.floor(20 / d));
+    if(frame % aimInterval === 0) {
       let dx = player.x - bossX, dy = player.y - bossY;
       let len = Math.sqrt(dx*dx+dy*dy);
-      bullets.push({ x: bossX, y: bossY+30, vx: dx/len*4, vy: dy/len*4, r: 4, color: '#f4c875'});
+      bullets.push({ x: bossX, y: bossY+30, vx: dx/len*(4*d), vy: dy/len*(4*d), r: 4, color: '#f4c875'});
     }
   }
 }
@@ -1118,21 +1293,18 @@ function dist(a, b) {
   return Math.sqrt(dx*dx+dy*dy);
 }
 
-// ===== UPDATE =====
 function update() {
   if(state !== 'play') return;
   frame++;
   gameTime++;
   phaseTimer++;
 
-  // アイテムスポーン
   itemSpawnTimer++;
   if(itemSpawnTimer >= ITEM_SPAWN_INTERVAL) {
     itemSpawnTimer = 0;
     spawnDropItem();
   }
 
-  // アクティブ効果タイマー更新
   let effectChanged = false;
   for(const type of Object.keys(activeEffects)) {
     activeEffects[type]--;
@@ -1141,10 +1313,9 @@ function update() {
   }
   if(effectChanged) updateEffectDisplay();
 
-  // 現在の当たり判定半径（hitReduce効果中は縮小）
+
   player.hitR = activeEffects['hitReduce'] ? 1 : 4;
 
-  // フェーズ切り替え
   let phaseDuration = 400;
   if(phaseTimer > phaseDuration) {
     phaseTimer = 0;
@@ -1159,7 +1330,6 @@ function update() {
   bossY = 90 + Math.sin(frame*0.02)*20;
 
   bossHP = Math.max(0, bossHP - 0.15);
-  document.getElementById('boss-bar').style.width = (bossHP/bossMaxHP*100) + '%';
 
   if(bossHP <= 0) {
     bossHP = 600; bossMaxHP = 600;
@@ -1172,11 +1342,9 @@ function update() {
 
   bossPattern.gen();
 
-  // ドロップアイテム更新
   for(let di of dropItems) {
     di.x += di.vx; di.y += di.vy;
     di.pulse += 0.08;
-    // プレイヤーとの当たり判定
     let d = dist(player, di);
     if(d < player.r + di.r) {
       addToStock(di.type);
@@ -1188,8 +1356,7 @@ function update() {
   bullets = bullets.filter(b => b.x > -20 && b.x < gameW+20 && b.y > -20 && b.y < gameH+20);
   for(let b of bullets) { b.x += b.vx; b.y += b.vy; }
 
-  // プレイヤー移動
-  let speed = shift ? 1.6 : 3.8;
+  let speed = 3.8;
   const up    = keys['ArrowUp']    || keys['KeyW'];
   const down  = keys['ArrowDown']  || keys['KeyS'];
   const left  = keys['ArrowLeft']  || keys['KeyA'];
@@ -1197,7 +1364,6 @@ function update() {
   const usingKeyboard = up || down || left || right;
 
   if(vstick.active && (Math.abs(vstick.dx) > 0.05 || Math.abs(vstick.dy) > 0.05)) {
-    // 仮想スティック入力
     const vstickSpeed = 3.0;
     player.x += vstick.dx * vstickSpeed;
     player.y += vstick.dy * vstickSpeed;
@@ -1219,7 +1385,6 @@ function update() {
   player.x = Math.max(12, Math.min(gameW-12, player.x));
   player.y = Math.max(12, Math.min(gameH-12, player.y));
 
-  // 弾との判定
   const isInvincible = invincible > 0 || !!activeEffects['invincible'];
   if(!isInvincible) {
     for(let b of bullets) {
@@ -1230,12 +1395,16 @@ function update() {
         invincible = 120;
         deathFlash = 20;
         updateUI();
+
         if(lives <= 0) {
           state = 'dead';
-          bgm.pause();
+          bgmGame.pause();
           recordGameResult(score, graze, gameTime);
-          showOverlay('ゲームオーバー', `SCORE: ${score.toLocaleString()} / かすり: ${graze}\n記録をシェア`, '再挑戦');
+          setTimeout(() => {
+            showOverlay('ゲームオーバー', `スコア: ${score.toLocaleString()}\nかすり: ${graze}\n時間: ${document.getElementById('ui-time-val').textContent}`, 'もう一度遊ぶ');
+          }, 15);
         }
+
         break;
       } else if(dd < b.r + 14) {
         graze++;
@@ -1251,29 +1420,32 @@ function update() {
   const baseScore = 1;
   score += activeEffects['scoreDouble'] ? baseScore * 2 : baseScore;
   if(frame % 60 === 0) updateUI();
-
-  // エフェクトタイマー
   if(clearEffectTimer > 0) clearEffectTimer--;
   if(pickupFlash && pickupFlash.timer > 0) pickupFlash.timer--;
 }
 
 function updateUI() {
-  document.getElementById('score-val').textContent = score.toLocaleString();
-  document.getElementById('graze-val').textContent = graze;
+
+  document.getElementById('ui-score-val').textContent = score.toLocaleString();
+  
+  document.getElementById('ui-graze-val').textContent = graze;
+  
   let seconds = Math.floor(gameTime / 60);
   let minutes = Math.floor(seconds / 60);
   seconds = seconds % 60;
   let timeStr = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-  document.getElementById('time-val').textContent = timeStr;
+  document.getElementById('ui-time-val').textContent = timeStr;
+  
   for(let i = 0; i < 3; i++) {
-    document.getElementById('l'+i).style.opacity = i < Math.max(0, lives) ? '1' : '0.15';
+    document.getElementById('ui-lives-icon-' + i).style.opacity = 
+      i < Math.max(0, lives) ? '1' : '0.15';
   }
 }
 
 function showOverlay(title, msg, btn) {
   let ov = document.getElementById('gameover-overlay');
   const gameUrl   = "https://dayu-otya.github.io/poporindd/";
-  const shareText = `【ぽぽりんの弾幕避け】\nSCORE: ${score.toLocaleString()} \nかすり: ${graze}\n時間: ${document.getElementById('time-val').textContent}\n${gameUrl}\n#ポポと岐阜\n#ぽぽりん`;
+  const shareText = `【ぽぽりんの弾幕避け】\nSCORE: ${score.toLocaleString()} \nかすり: ${graze}\n時間: ${document.getElementById('ui-time-val').textContent}\n${gameUrl}\n#ポポと岐阜\n#ぽぽりん`;
   const encoded   = encodeURIComponent(shareText);
   const xUrl       = `https://twitter.com/intent/tweet?text=${encoded}`;
   const bskyUrl    = `https://bsky.app/intent/compose?text=${encoded}`;
@@ -1304,10 +1476,8 @@ function showOverlay(title, msg, btn) {
   `;
   ov.style.display = 'flex';
   
-  // ★ 再挑戦ボタン ★
   document.getElementById('retry-btn').onclick = initGame;
   
-  // ★ ホーム戻るボタン ★
   document.getElementById('home-btn').onclick = goHome;
 }
 
@@ -1317,20 +1487,31 @@ function goHome() {
   dropItems = [];
   itemStock = [null, null, null];
   activeEffects = {};
+  bgmGame.pause();
+  bgmGame.currentTime = 0;
+  bgmMenu.currentTime = 0;
+  bgmMenu.play();
+
+  document.body.classList.add('hide-ui');
 
   document.getElementById('gameover-overlay').style.display = 'none';
-  document.getElementById('boss-bar-wrap').style.display = 'none';
   document.getElementById('phase-label').style.display = 'none';
-  document.getElementById('game-start-screen').style.display = 'none';
+
+  document.getElementById('game-start-screen').style.display        = 'none';
   document.getElementById('settings-and-start-screen').style.display = 'none';
-  document.getElementById('stats-screen').style.display = 'none';
-  document.getElementById('device-select-screen').style.display = 'flex'; 
-  document.getElementById('overlay').style.display = 'flex';
+  document.getElementById('stats-screen').style.display             = 'none';
+  document.getElementById('device-select-screen').style.display     = 'none';
+
+  setTimeout(() => {
+    document.getElementById('device-select-screen').style.display = 'flex';
+    document.getElementById('overlay').style.display = 'flex';
+  }, 0);
+
   updateItemStockUI();
+  updateItemOverlayUI();
   updateEffectDisplay();
 }
 
-// ===== DRAW =====
 function drawBoss() {
   let t = frame;
   ctx.save();
@@ -1363,9 +1544,7 @@ function drawBoss() {
   ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(0, 3, 5, 0.1, Math.PI-0.1); ctx.stroke();
   ctx.restore();
-  let pl = document.getElementById('phase-label');
-  pl.style.display = 'block';
-  pl.textContent = bossPattern.name;
+  document.getElementById('phase-label').style.display = 'none';
 }
 
 function drawPlayer() {
@@ -1375,17 +1554,11 @@ function drawPlayer() {
 
   const invincAnim = invincible > 0 && Math.floor(invincible/4) % 2 === 0;
   if(invincAnim) { ctx.restore(); return; }
-
-    // 画像
   ctx.drawImage(playerImg, -24, -24, 48, 48);
-
-  // 緑のかすり判定エリア
   ctx.fillStyle = 'rgba(255,255,255,0.45)';
   ctx.beginPath();
-  ctx.arc(0, 0, 14, 0, Math.PI*2);  // かすり判定半径 14px
+  ctx.arc(0, 0, 14, 0, Math.PI*2); 
   ctx.fill();
-
-  // 赤い当たり判定
   ctx.strokeStyle = 'rgba(255,60,60,0.9)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
@@ -1395,7 +1568,6 @@ function drawPlayer() {
   ctx.beginPath();
   ctx.arc(0, 0, 1.5, 0, Math.PI*2);
   ctx.fill();
-
   ctx.restore();
 }
 
@@ -1404,13 +1576,11 @@ function drawDropItems() {
     let glow = 0.6 + Math.sin(di.pulse) * 0.4;
     ctx.save();
     ctx.translate(di.x, di.y);
-    // 光輪
     let aura = ctx.createRadialGradient(0,0,2, 0,0,di.r+6);
     aura.addColorStop(0, di.color + 'aa');
     aura.addColorStop(1, 'transparent');
     ctx.fillStyle = aura;
     ctx.beginPath(); ctx.arc(0,0,di.r+6,0,Math.PI*2); ctx.fill();
-    // 本体
     ctx.beginPath(); ctx.arc(0,0,di.r,0,Math.PI*2);
     ctx.fillStyle = '#1a0a2a';
     ctx.fill();
@@ -1419,7 +1589,6 @@ function drawDropItems() {
     ctx.shadowColor = di.color; ctx.shadowBlur = 8 * glow;
     ctx.stroke();
     ctx.shadowBlur = 0;
-    // 絵文字
     ctx.font = '14px system-ui';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -1447,7 +1616,6 @@ function drawClearEffect() {
   ctx.save();
   ctx.fillStyle = `rgba(180,100,240,${p*0.35})`;
   ctx.fillRect(0,0,gameW,gameH);
-  // 放射状ライン
   ctx.strokeStyle = `rgba(200,130,255,${p*0.7})`;
   ctx.lineWidth = 2;
   for(let i = 0; i < 12; i++) {
@@ -1492,7 +1660,6 @@ function drawDeathFlash() {
   }
 }
 
-// スコア2倍中の画面端テキスト
 function drawScoreDoubleIndicator() {
   if(!activeEffects['scoreDouble']) return;
   ctx.save();
@@ -1528,15 +1695,15 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-// ===== イベント =====
-
 document.getElementById('select-pc-btn').addEventListener('click', () => {
   setDeviceMode('pc');
+  bgmMenu.play();
   showSettingsScreen('PC版');
 });
 
 document.getElementById('select-mobile-btn').addEventListener('click', () => {
   setDeviceMode('mobile');
+  bgmMenu.play();
   showSettingsScreen('モバイル版');
 });
 
@@ -1592,23 +1759,24 @@ canvas.addEventListener('touchmove', e => {
 
 document.addEventListener('keydown', e => {
   keys[e.code] = true;
-  if(e.code === 'ShiftLeft' || e.code === 'ShiftRight') shift = true;
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
 
-  // 数字キー 1〜3 でアイテム発動
   if(e.code === 'Digit1') useItem(0);
   if(e.code === 'Digit2') useItem(1);
   if(e.code === 'Digit3') useItem(2);
 });
 document.addEventListener('keyup', e => {
   keys[e.code] = false;
-  if(e.code === 'ShiftLeft' || e.code === 'ShiftRight') shift = false;
 });
 
-bgm.volume = 0.5;
+bgmMenu.volume = 0.5;
+bgmGame.volume = 0.5;
 document.getElementById('vol-slider').addEventListener('input', e => {
-  bgm.volume = parseFloat(e.target.value);
+  const vol = parseFloat(e.target.value);
+  bgmMenu.volume = vol;
+  bgmGame.volume = vol;
 });
+
 document.getElementById('stats-btn').addEventListener('click', () => {
   document.getElementById('settings-and-start-screen').style.display = 'none';
   showStatsScreen();
@@ -1622,11 +1790,11 @@ document.getElementById('back-from-stats-btn').addEventListener('click', () => {
 const infoContents = {
   thanks: {
     title: 'サンクス',
-    content: 'ぽぽりんの弾幕避けをプレイしてくれてありがとうございます！\n\n不具合報告やご意見は、Karotterアカウント "だゆ（@DA）" までお寄せください。\n\nまた遊んでね。'
+    content: 'ぽぽりんの弾幕避けをプレイしてくれてありがとうございます！\n\n不具合報告やご意見は、Karotterアカウント "だゆ（@DA）" までお寄せください。\nぜひまた遊んでください！'
   },
   howToPlay: {
     title: '遊び方',
-    content: '【基本操作】\n・マウス・タッチ：プレイヤーを移動\n・キーボード：矢印キーで移動\n\n【ゲームの目的】\n露炉の犬（敵）が放つ弾を避けながら、できるだけ長く生き残りましょう。\n\n【アイテム】\n画面上から落ちてくるアイテムを触ると、画面下のスロットに追加されます。数字キー1〜3で発動できます。'
+    content: '【基本操作】\n・マウス・タッチ：プレイヤーを移動\n・キーボード：矢印キーで移動\n\n【ゲームの内容】\n露炉の犬（敵）が放つ弾を避けながら、できるだけ長く生き残りましょう。\n\n【アイテム】\n画面上から落ちてくるアイテムを触ると、画面下のスロットに追加されます。数字キー1〜3・またはタップで発動できます。'
   },
   aboutItems: {
     title: 'アイテム説明',
@@ -1634,7 +1802,7 @@ const infoContents = {
   },
   credits: {
     title: 'クレジット',
-    content: 'ぽぽりんイラスト:なすび。 様\n\nぽぽりんドット：おんJ民 様\n\nBGM：準備中\n\nロゴ製作者様：なのメートル 様\n\nぽぽりん公式サイト:\nhttps://poporin.net/'
+    content: 'ぽぽりんイラスト:なすび。 様\n\nぽぽりんドット：おんJ民 様\n\nメニューBGM：AI作曲\n\nプレイ中BGM：準備中\n\nロゴ製作者様：なのメートル 様\n\nぽぽりん公式サイト:\nhttps://poporin.net/'
   },
   Links: {
     title: 'リンク集',
@@ -1656,16 +1824,15 @@ document.getElementById('close-info-btn').addEventListener('click', () => {
 });
 
 loop();
+document.body.classList.add('hide-ui');
 window.addEventListener('resize', () => {
   if(deviceMode !== 'mobile') return;
-  
+  if(state === 'play') return;
 
   updateMobileCanvasSize();
-  
   console.log(`Resized: ${gameW}x${gameH}`);
 });
 
-// ===== 仮想スティック =====
 const vstickBase = document.getElementById('vstick-base');
 const vstickKnob = document.getElementById('vstick-knob');
 
@@ -1704,7 +1871,16 @@ vstickBase.addEventListener('touchstart', e => {
 }, { passive: false });
 
 vstickBase.addEventListener('touchmove', e => {
-  e.preventDefault();
+  let isStickTouch = false;
+  for(const t of e.changedTouches) {
+    if(t.identifier === vstick.id) {
+      isStickTouch = true;
+      break;
+    }
+  }
+  
+  if(isStickTouch) e.preventDefault();  
+  
   if(!vstick.active) return;
   for(const t of e.changedTouches) {
     if(t.identifier !== vstick.id) continue;
@@ -1740,21 +1916,25 @@ vstickBase.addEventListener('touchend',    vstickEnd, { passive: false });
 vstickBase.addEventListener('touchcancel', vstickEnd, { passive: false });
 
 function showPauseOverlay() {
-  let ov = document.getElementById('overlay');
-  ov.innerHTML = `
-    <h2>一時停止</h2>
-    <p>画面が回転したみたい<br>再開して大丈夫？</p>
-    <button id="resume-btn" style="padding:10px 28px;font-size:14px;cursor:pointer;border:0.5px solid rgba(200,160,255,0.6);background:rgba(120,80,200,0.3);color:#dcd;border-radius:8px;">
-      再開する
-    </button>
-  `;
-  ov.style.display = 'flex';
-  
-  document.getElementById('resume-btn').onclick = () => {
-    ov.style.display = 'none';
-    state = 'play';
-  };
+  let panel = document.getElementById('pause-panel');
+  if(!panel) {
+    panel = document.createElement('div');
+    panel.id = 'pause-panel';
+    panel.style.cssText = `
+      position:absolute;top:0;left:0;right:0;bottom:0;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      color:white;gap:12px;text-align:center;z-index:30;
+      background:rgba(0,0,0,0.7);
+    `;
+    document.getElementById('canvas-container').appendChild(panel);
+    document.getElementById('resume-btn').onclick = () => {
+      panel.style.display = 'none';
+      state = 'play';
+    };
+  }
+  panel.style.display = 'flex';
 }
+
 </script>
 </body>
 </html>
